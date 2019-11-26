@@ -5,6 +5,7 @@
     <packaging>pom</packaging>
     <modules>
         <module>application</module>
+        <module>rest-api</module>
     </modules>
     <parent>
         <groupId>org.springframework.boot</groupId>
@@ -14,13 +15,15 @@
     </parent>
     <groupId>dev.ned</groupId>
     <artifactId>ems-rest</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>${revision}</version>
     <name>ems-rest</name>
-    <description>Demo project for Spring Boot</description>
+    <description>REST Spring Boot Application for Educational Management System</description>
 
     <properties>
         <java.version>11</java.version>
+        <revision>2.2.1.RELEASE</revision>
         <mapstruct.version>1.2.0.Final</mapstruct.version>
+        <byte-buddy.version>1.10.3</byte-buddy.version>
     </properties>
 
     <dependencies>
@@ -44,7 +47,7 @@
         <dependency>
             <groupId>net.bytebuddy</groupId>
             <artifactId>byte-buddy</artifactId>
-            <version>1.10.3</version>
+            <version>${byte-buddy.version}</version>
         </dependency>
 
         <dependency>

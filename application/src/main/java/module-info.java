@@ -8,7 +8,9 @@ module application {
     requires net.bytebuddy;
     requires com.fasterxml.classmate;
 
-    opens dev.ned.ems.application to spring.core, spring.beans, spring.context;
+    requires rest.api;
 
-    exports dev.ned.ems.application to spring.boot.devtools;
+    opens dev.ned.application to spring.core, spring.beans, spring.context;
+
+    exports dev.ned.application to spring.boot.devtools;
 }

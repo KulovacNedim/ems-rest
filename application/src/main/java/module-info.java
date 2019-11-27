@@ -9,6 +9,7 @@ module application {
     requires com.fasterxml.classmate;
 
     requires rest.api;
+    requires security;
 
     opens dev.ned.application to spring.core, spring.beans, spring.context;
 

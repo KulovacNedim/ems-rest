@@ -17,9 +17,15 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
+
         <dependency>
             <groupId>dev.ned</groupId>
             <artifactId>rest-api</artifactId>
+            <version>${revision}</version>
+        </dependency>
+        <dependency>
+            <groupId>dev.ned</groupId>
+            <artifactId>security</artifactId>
             <version>${revision}</version>
         </dependency>
     </dependencies>

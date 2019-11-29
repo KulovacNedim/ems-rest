@@ -1,4 +1,6 @@
 module security {
+    requires transitive domain;
+
     requires spring.context;
     requires spring.security.config;
     requires spring.security.core;

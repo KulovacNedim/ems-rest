@@ -24,6 +24,7 @@ public class DBInit implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
         User admin = new User();
+        admin.setUsername("admin");
         admin.setActive(true);
         admin.setEmail("admin");
         admin.setPassword(passwordEncoder.encode("adm123"));
@@ -35,6 +36,7 @@ public class DBInit implements CommandLineRunner {
 
 
         User teacher = new User();
+        teacher.setUsername("teacher");
         teacher.setActive(true);
         teacher.setPermissions("11");
         teacher.setEmail("teacher");

@@ -12,5 +12,5 @@ module security {
 
     opens dev.ned.config to spring.core;
 
-    exports dev.ned.config to spring.beans, spring.context;
+    exports dev.ned.config to spring.beans, spring.context, jackson.databind;
 }

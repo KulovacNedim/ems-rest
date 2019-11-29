@@ -1,6 +1,5 @@
 module domain {
     exports dev.ned.model;
-//    exports dev.ned.intefaces;
 
     requires java.persistence;
     requires jackson.annotations;

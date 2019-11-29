@@ -4,5 +4,5 @@ module domain {
 
     requires java.persistence;
 
-    opens dev.ned.model to org.hibernate.orm.core, spring.core;
+    opens dev.ned.model to org.hibernate.orm.core, spring.core, jackson.databind;
 }

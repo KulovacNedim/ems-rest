@@ -6,6 +6,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @RestController
 @RequestMapping("/")
 public class TestController {
@@ -36,6 +39,14 @@ public class TestController {
     @GetMapping("/")
     public String sayHello() {
         return "Hello!";
+    }
+
+    @GetMapping(value = "/q")
+    public List<String> sayHsello() {
+        List<String> l = new ArrayList<>();
+        l.add("zx");
+        l.add("as");
+        return l;
     }
 
     @GetMapping("/u")

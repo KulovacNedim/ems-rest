@@ -4,9 +4,9 @@ module application {
     requires spring.context;
     requires spring.boot;
 
-    requires java.sql;
-    requires net.bytebuddy;
-    requires com.fasterxml.classmate;
+//    requires java.sql;
+//    requires net.bytebuddy;
+//    requires com.fasterxml.classmate;
 
     requires rest.api;
     requires security;

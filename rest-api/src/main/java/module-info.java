@@ -5,10 +5,10 @@ module rest.api {
     requires persistence;
 
     requires java.sql;
-
+//
     requires net.bytebuddy;
     requires com.fasterxml.classmate;
-    requires spring.webmvc;
+//    requires spring.webmvc;
 
     opens dev.ned.rest to jackson.databind;
     exports dev.ned.rest to spring.beans, spring.web;

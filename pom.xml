@@ -27,7 +27,7 @@
         <revision>2.2.1.RELEASE</revision>
         <mapstruct.version>1.2.0.Final</mapstruct.version>
         <byte-buddy.version>1.10.3</byte-buddy.version>
-<!--        <jackson.version>2.7.4</jackson.version>-->
+        <fasterxml.version>2.7.4</fasterxml.version>
     </properties>
 
     <dependencies>
@@ -75,22 +75,22 @@
             </exclusions>
         </dependency>
 
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-webmvc</artifactId>
-            <version>5.2.1.RELEASE</version>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>org.springframework</groupId>-->
+<!--            <artifactId>spring-webmvc</artifactId>-->
+<!--            <version>5.2.1.RELEASE</version>-->
+<!--        </dependency>-->
 
-        <dependency>
-            <groupId>net.bytebuddy</groupId>
-            <artifactId>byte-buddy</artifactId>
-            <version>1.10.3</version>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>net.bytebuddy</groupId>-->
+<!--            <artifactId>byte-buddy</artifactId>-->
+<!--            <version>1.10.3</version>-->
+<!--        </dependency>-->
         <!-- https://dzone.com/articles/jackson-dependency-issue-in-spring-boot-with-maven -->
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
-            <version>2.7.4</version>
+            <version>${fasterxml.version}</version>
             <exclusions>
                 <exclusion>
                     <groupId>com.fasterxml.jackson.core</groupId>
@@ -105,12 +105,12 @@
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-core</artifactId>
-            <version>2.7.4</version>
+            <version>${fasterxml.version}</version>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-annotations</artifactId>
-            <version>2.7.4</version>
+            <version>${fasterxml.version}</version>
         </dependency>
     </dependencies>
 

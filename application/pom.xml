@@ -42,17 +42,17 @@
                 <artifactId>spring-boot-maven-plugin</artifactId>
             </plugin>
 
-        <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-war-plugin</artifactId>
-            <configuration>
-                <archive>
-                    <manifestEntries>
-                        <Dependencies>jdk.unsupported</Dependencies>
-                    </manifestEntries>
-                </archive>
-            </configuration>
-        </plugin>
+<!--        <plugin>-->
+<!--            <groupId>org.apache.maven.plugins</groupId>-->
+<!--            <artifactId>maven-war-plugin</artifactId>-->
+<!--            <configuration>-->
+<!--                <archive>-->
+<!--                    <manifestEntries>-->
+<!--                        <Dependencies>jdk.unsupported</Dependencies>-->
+<!--                    </manifestEntries>-->
+<!--                </archive>-->
+<!--            </configuration>-->
+<!--        </plugin>-->
         </plugins>
     </build>
 

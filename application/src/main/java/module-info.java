@@ -10,6 +10,7 @@ module application {
 
     requires rest.api;
     requires security;
+    requires persistence;
 
     opens dev.ned.application to spring.core, spring.beans, spring.context;
 

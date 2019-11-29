@@ -7,6 +7,8 @@
         <module>application</module>
         <module>rest-api</module>
         <module>security</module>
+        <module>persistence</module>
+        <module>domain</module>
     </modules>
     <parent>
         <groupId>org.springframework.boot</groupId>
@@ -28,6 +30,12 @@
     </properties>
 
     <dependencies>
+        <dependency>
+            <groupId>dev.ned</groupId>
+            <artifactId>domain</artifactId>
+            <version>${revision}</version>
+        </dependency>
+
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-security</artifactId>

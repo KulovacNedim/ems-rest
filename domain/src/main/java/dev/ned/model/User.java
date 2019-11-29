@@ -1,6 +1,8 @@
 package dev.ned.model;
 
 import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 public class User {
@@ -20,8 +22,8 @@ public class User {
     @Column(nullable = false)
     private String password;
 
-//    @OneToMany(mappedBy = "user", cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.DETACH, CascadeType.REFRESH}, fetch = FetchType.EAGER)
-//    private List<Role> roles;
+    @OneToMany(mappedBy = "user", cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.DETACH, CascadeType.REFRESH}, fetch = FetchType.EAGER)
+    private List<Role> roles;
 
     private String permissions = "";
 
@@ -30,7 +32,7 @@ public class User {
     public User() {
     }
 
-    public User(String firstName, String lastName, String email, String password, /*List<Role> roles,*/  String permissions, boolean isActive) {
+    public User(String firstName, String lastName, String email, String password, List<Role> roles,  String permissions, boolean isActive) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
@@ -40,14 +42,14 @@ public class User {
         this.isActive = isActive;
     }
 
-//    // adding Role to User's roles and setting User to Role
-//    public void addRole(Role role) {
-//        if (roles == null) {
-//            roles = new ArrayList<>();
-//        }
-//        roles.add(role);
-//        role.setUser(this);
-//    }
+    // adding Role to User's roles and setting User to Role
+    public void addRole(Role role) {
+        if (roles == null) {
+            roles = new ArrayList<>();
+        }
+        roles.add(role);
+        role.setUser(this);
+    }
 
 
     public Long getId() {
@@ -104,5 +106,13 @@ public class User {
 
     public void setActive(boolean active) {
         isActive = active;
+    }
+
+    public List<Role> getRoles() {
+        return roles;
+    }
+
+    public void setRoles(List<Role> roles) {
+        this.roles = roles;
     }
 }

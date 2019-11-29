@@ -1,5 +1,6 @@
 package dev.ned.rest;
 
+import dev.ned.model.Role;
 import dev.ned.model.User;
 import dev.ned.repositories.UserRepository;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -59,6 +60,11 @@ public class TestController {
         user.setEmail("email");
         user.setPassword("pass");
         user.setPermissions("perm");
+        List<Role> roles = new ArrayList<>();
+
+        Role role = new Role("ADMIN", user);
+        roles.add(role);
+        user.setRoles(roles);
         return user;
     }
 }

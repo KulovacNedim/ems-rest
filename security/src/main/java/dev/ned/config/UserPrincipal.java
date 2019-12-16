@@ -38,7 +38,7 @@ public class UserPrincipal implements UserDetails {
 
     @Override
     public String getUsername() {
-        return this.user.getUsername();
+        return this.user.getEmail();
     }
 
     @Override
@@ -59,5 +59,12 @@ public class UserPrincipal implements UserDetails {
     @Override
     public boolean isEnabled() {
         return this.user.isActive();
+    }
+
+    @Override
+    public String toString() {
+        return "UserPrincipal{" +
+                "user=" + user.toString() +
+                '}';
     }
 }

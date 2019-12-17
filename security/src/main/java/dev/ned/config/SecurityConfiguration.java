@@ -1,6 +1,7 @@
 package dev.ned.config;
 
 import dev.ned.repositories.UserRepository;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -11,10 +12,15 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.header.writers.StaticHeadersWriter;
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
+
+    @Value("${cors.origin}")
+    private String origin;
+
     private UserPrincipalDetailService userPrincipalDetailService;
     private UserRepository userRepository;
 
@@ -41,7 +47,10 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .addFilter(new JwtAuthorizationFilter(authenticationManager(), this.userRepository))
                 .authorizeRequests()
                 .antMatchers("/login", "/auth/login").permitAll()
-                .antMatchers("/users").hasRole("CEO");
+                .antMatchers("/users").hasRole("CEO")
+                .and()
+                .headers()
+                .addHeaderWriter(new StaticHeadersWriter("Access-Control-Allow-Origin", origin));
     }
 
     @Bean

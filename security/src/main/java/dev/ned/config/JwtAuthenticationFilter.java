@@ -61,7 +61,6 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
                 .sign(HMAC512(JwtProperties.SECRET.getBytes()));
 
         // Add token in response
-        response.addHeader("Access-Control-Allow-Origin", "http://localhost:3000");
         response.addHeader(JwtProperties.HEADER_STRING, JwtProperties.TOKEN_PREFIX + token);
     }
 }

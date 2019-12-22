@@ -50,7 +50,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .antMatchers("/users").hasRole("CEO")
                 .and()
                 .headers()
-                .addHeaderWriter(new StaticHeadersWriter("Access-Control-Allow-Origin", origin));
+                .addHeaderWriter(new StaticHeadersWriter("Access-Control-Allow-Origin", origin))
+                .addHeaderWriter(new StaticHeadersWriter("Access-Control-Expose-Headers", "Authorization"));
     }
 
     @Bean

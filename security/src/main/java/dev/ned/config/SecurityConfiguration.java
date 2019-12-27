@@ -23,10 +23,12 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     private UserPrincipalDetailService userPrincipalDetailService;
     private UserRepository userRepository;
+    private JwtTokenProvider jwtTokenProvider;
 
-    public SecurityConfiguration(UserPrincipalDetailService userPrincipalDetailService, UserRepository userRepository) {
+    public SecurityConfiguration(UserPrincipalDetailService userPrincipalDetailService, UserRepository userRepository, JwtTokenProvider jwtTokenProvider) {
         this.userPrincipalDetailService = userPrincipalDetailService;
         this.userRepository = userRepository;
+        this.jwtTokenProvider = jwtTokenProvider;
     }
 
     @Override
@@ -43,7 +45,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .formLogin()
                 .usernameParameter("email")
                 .and()
-                .addFilter(new JwtAuthenticationFilter(authenticationManager()))
+                .addFilter(new JwtAuthenticationFilter(authenticationManager(), this.jwtTokenProvider))
                 .addFilter(new JwtAuthorizationFilter(authenticationManager(), this.userRepository))
                 .authorizeRequests()
                 .antMatchers("/login", "/auth/login").permitAll()
@@ -51,7 +53,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .and()
                 .headers()
                 .addHeaderWriter(new StaticHeadersWriter("Access-Control-Allow-Origin", origin))
-                .addHeaderWriter(new StaticHeadersWriter("Access-Control-Expose-Headers", "Authorization"));
+                .addHeaderWriter(new StaticHeadersWriter("Access-Control-Expose-Headers", "Authorization, RefreshToken"));
     }
 
     @Bean

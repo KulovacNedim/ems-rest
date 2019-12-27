@@ -1,6 +1,8 @@
 package dev.ned.config;
 
 import com.auth0.jwt.JWT;
+import com.auth0.jwt.exceptions.TokenExpiredException;
+import com.auth0.jwt.interfaces.DecodedJWT;
 import dev.ned.model.User;
 import dev.ned.repositories.UserRepository;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -28,7 +30,7 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException, ServletException {
         // Read the Authorization header, where the JWT token should be
-        String header = request.getHeader(JwtProperties.HEADER_STRING);
+        String header = request.getHeader(JwtProperties.ACCESS_TOKEN_HEADER_STRING);
 
         // If header does not contain BEARER or is null delegate to Spring impl and exit
         if (header == null || !header.startsWith(JwtProperties.TOKEN_PREFIX)) {
@@ -46,27 +48,59 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
     }
 
     private Authentication getUsernamePasswordAuthentication(HttpServletRequest request) {
-        String token = request.getHeader(JwtProperties.HEADER_STRING)
-                .replace(JwtProperties.TOKEN_PREFIX,"");
+        String token = request.getHeader(JwtProperties.ACCESS_TOKEN_HEADER_STRING)
+                .replace(JwtProperties.TOKEN_PREFIX, "");
 
         if (token != null) {
-            // parse the token and validate it
-            String email = JWT.require(HMAC512(JwtProperties.SECRET.getBytes()))
-                    .build()
-                    .verify(token)
-                    .getSubject();
+            DecodedJWT decodedJwt = null;
+            try {
+                decodedJwt = JWT.require(HMAC512(JwtProperties.SECRET.getBytes()))
+                        .build()
+                        .verify(token);
 
-            // Search in the DB if we find the user by token subject (username)
-            // If so, then grab user details and create spring auth token using username, pass, authorities/roles
-            if (email != null) {
-                User user = userRepository.findByEmail(email);
+                // parse the token and validate it
+                String email = decodedJwt.getSubject();
 
-                UserPrincipal principal = new UserPrincipal(user);
+                System.out.println("132 " + email);
 
-                UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(email, null, principal.getAuthorities());
-                return auth;
+                // Search in the DB if we find the user by token subject (username)
+                // If so, then grab user details and create spring auth token using username, pass, authorities/roles
+                if (email != null) {
+                    User user = userRepository.findByEmail(email);
+
+                    UserPrincipal principal = new UserPrincipal(user);
+
+                    UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(email, null, principal.getAuthorities());
+                    return auth;
+                }
+
+            } catch (TokenExpiredException exc) {
+                String refreshToken = request.getHeader(JwtProperties.REFRESH_TOKEN_HEADER_STRING)
+                        .replace(JwtProperties.TOKEN_PREFIX, "");
+                if (refreshToken != null) {
+                    DecodedJWT decodedRefreshToken = JWT.require(HMAC512(JwtProperties.SECRET.getBytes()))
+                            .build()
+                            .verify(refreshToken);
+                    String email = decodedRefreshToken.getSubject();
+                    //check if email is null
+                    User user = userRepository.findByEmail(email);
+                    if (user.getRefreshToken().getRefreshToken().equals(refreshToken)) {
+                        // get new access token and refresh token
+                        // put them to header
+                        System.out.println("Here is your auth");
+
+                        UserPrincipal principal = new UserPrincipal(user);
+
+                        UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(email, null, principal.getAuthorities());
+
+                        return auth;
+
+                    }
+                }
+//                else throw exc
             }
             return null;
+            //throw exc
         }
         return null;
     }

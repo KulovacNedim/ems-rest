@@ -10,6 +10,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/")
+//@CrossOrigin("http://localhost:3000")
 public class TestController {
 
     private UserRepository userRepository;

@@ -27,6 +27,7 @@ public class AuthController {
     public ResponseEntity<User> getCurrentUser() {
         User user = userRepository.findByEmail(SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString());
         user.setPassword(null);
+        user.setRefreshToken(null);
         // exception handling
         return ResponseEntity.status(HttpStatus.OK).body(user);
     }

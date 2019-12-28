@@ -46,7 +46,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .usernameParameter("email")
                 .and()
                 .addFilter(new JwtAuthenticationFilter(authenticationManager(), this.jwtTokenProvider))
-                .addFilter(new JwtAuthorizationFilter(authenticationManager(), this.userRepository))
+                .addFilter(new JwtAuthorizationFilter(authenticationManager(), this.userRepository, jwtTokenProvider))
                 .authorizeRequests()
                 .antMatchers("/login", "/auth/login").permitAll()
                 .antMatchers("/users").hasRole("CEO")

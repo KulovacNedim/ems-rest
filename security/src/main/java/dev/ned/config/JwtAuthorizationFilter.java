@@ -16,15 +16,18 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Date;
 
 import static com.auth0.jwt.algorithms.Algorithm.HMAC512;
 
 public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
     private UserRepository userRepository;
+    private JwtTokenProvider jwtTokenProvider;
 
-    public JwtAuthorizationFilter(AuthenticationManager authenticationManager, UserRepository userRepository) {
+    public JwtAuthorizationFilter(AuthenticationManager authenticationManager, UserRepository userRepository, JwtTokenProvider jwtTokenProvider) {
         super(authenticationManager);
         this.userRepository = userRepository;
+        this.jwtTokenProvider = jwtTokenProvider;
     }
 
     @Override
@@ -39,7 +42,7 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
         }
 
         // If header is present, try grab user principal from database and perform authorization
-        Authentication authentication = getUsernamePasswordAuthentication(request);
+        Authentication authentication = getUsernamePasswordAuthentication(request, response);
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
@@ -47,60 +50,58 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
         chain.doFilter(request, response);
     }
 
-    private Authentication getUsernamePasswordAuthentication(HttpServletRequest request) {
+    private Authentication getUsernamePasswordAuthentication(HttpServletRequest request, HttpServletResponse response) {
         String token = request.getHeader(JwtProperties.ACCESS_TOKEN_HEADER_STRING)
                 .replace(JwtProperties.TOKEN_PREFIX, "");
 
-        if (token != null) {
-            DecodedJWT decodedJwt = null;
+        if (!token.equals("")) {
             try {
-                decodedJwt = JWT.require(HMAC512(JwtProperties.SECRET.getBytes()))
-                        .build()
-                        .verify(token);
-
-                // parse the token and validate it
-                String email = decodedJwt.getSubject();
-
-                System.out.println("132 " + email);
-
-                // Search in the DB if we find the user by token subject (username)
-                // If so, then grab user details and create spring auth token using username, pass, authorities/roles
-                if (email != null) {
-                    User user = userRepository.findByEmail(email);
-
-                    UserPrincipal principal = new UserPrincipal(user);
-
-                    UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(email, null, principal.getAuthorities());
-                    return auth;
-                }
-
+                return getAuthentication(token, response);
             } catch (TokenExpiredException exc) {
                 String refreshToken = request.getHeader(JwtProperties.REFRESH_TOKEN_HEADER_STRING)
                         .replace(JwtProperties.TOKEN_PREFIX, "");
-                if (refreshToken != null) {
-                    DecodedJWT decodedRefreshToken = JWT.require(HMAC512(JwtProperties.SECRET.getBytes()))
-                            .build()
-                            .verify(refreshToken);
-                    String email = decodedRefreshToken.getSubject();
-                    //check if email is null
-                    User user = userRepository.findByEmail(email);
-                    if (user.getRefreshToken().getRefreshToken().equals(refreshToken)) {
-                        // get new access token and refresh token
-                        // put them to header
-                        System.out.println("Here is your auth");
-
-                        UserPrincipal principal = new UserPrincipal(user);
-
-                        UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(email, null, principal.getAuthorities());
-
-                        return auth;
-
-                    }
+                if (!refreshToken.equals("")) {
+                    return getAuthentication(refreshToken, response);
                 }
 //                else throw exc
             }
             return null;
             //throw exc
+        }
+        System.out.println("There is no access token in header");
+        return null;
+    }
+
+    private Authentication getAuthentication(String token, HttpServletResponse response) {
+        DecodedJWT decodedJwt = null;
+        decodedJwt = JWT.require(HMAC512(JwtProperties.SECRET.getBytes()))
+                .build()
+                .verify(token);
+
+        // parse the token and validate it
+        String email = decodedJwt.getSubject();
+        Date expiresAt = decodedJwt.getExpiresAt();
+        System.out.println("at: " + expiresAt);
+
+        // Search in the DB if we find the user by token subject (username)
+        // If so, then grab user details and create spring auth token using username, pass, authorities/roles
+        if (email != null) {
+            User user = userRepository.findByEmail(email);
+            UserPrincipal principal = new UserPrincipal(user);
+
+            if (user.getRefreshToken().getRefreshToken().equals(token)) {
+                // Create access JWT Token
+                String accessJwtToken = jwtTokenProvider.createJwtToken(principal, true);
+
+                // Create refresh JWT Token
+                String refreshJwtToken = jwtTokenProvider.createJwtToken(principal, false);
+
+                // Add access and refresh tokens in response
+                jwtTokenProvider.setHeader(response, JwtProperties.ACCESS_TOKEN_HEADER_STRING, JwtProperties.TOKEN_PREFIX + accessJwtToken);
+                jwtTokenProvider.setHeader(response, JwtProperties.REFRESH_TOKEN_HEADER_STRING, JwtProperties.TOKEN_PREFIX + refreshJwtToken);
+            }
+            UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(email, null, principal.getAuthorities());
+            return auth;
         }
         return null;
     }

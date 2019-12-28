@@ -50,11 +50,13 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
     @Override
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) throws IOException, ServletException {
+        UserPrincipal userPrincipal = (UserPrincipal) authResult.getPrincipal();
+
         // Create access JWT Token
-        String accessJwtToken = jwtTokenProvider.createAccessJwtToken(authResult);
+        String accessJwtToken = jwtTokenProvider.createJwtToken(userPrincipal, true);
 
         // Create refresh JWT Token
-        String refreshJwtToken = jwtTokenProvider.createRefreshJwtToken(authResult);
+        String refreshJwtToken = jwtTokenProvider.createJwtToken(userPrincipal, false);
 
         // Add access and refresh tokens in response
         jwtTokenProvider.setHeader(response, JwtProperties.ACCESS_TOKEN_HEADER_STRING, JwtProperties.TOKEN_PREFIX + accessJwtToken);

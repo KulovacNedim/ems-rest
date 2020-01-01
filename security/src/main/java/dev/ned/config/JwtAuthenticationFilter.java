@@ -28,7 +28,6 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
-        // Grab credentials and map them to login viewmodel
         LoginViewModel credentials = null;
         try {
             credentials = new ObjectMapper().readValue(request.getInputStream(), LoginViewModel.class);
@@ -36,15 +35,12 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
             e.printStackTrace();
         }
 
-        // Create login token
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
                 credentials.getEmail(),
                 credentials.getPassword(),
                 new ArrayList<>());
 
-        // Authenticate user
         Authentication auth = authenticationManager.authenticate(authenticationToken);
-
         return auth;
     }
 
@@ -52,13 +48,9 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) throws IOException, ServletException {
         UserPrincipal userPrincipal = (UserPrincipal) authResult.getPrincipal();
 
-        // Create access JWT Token
         String accessJwtToken = jwtTokenProvider.createJwtToken(userPrincipal, true);
-
-        // Create refresh JWT Token
         String refreshJwtToken = jwtTokenProvider.createJwtToken(userPrincipal, false);
 
-        // Add access and refresh tokens in response
         jwtTokenProvider.setHeader(response, JwtProperties.ACCESS_TOKEN_HEADER_STRING, JwtProperties.TOKEN_PREFIX + accessJwtToken);
         jwtTokenProvider.setHeader(response, JwtProperties.REFRESH_TOKEN_HEADER_STRING, JwtProperties.TOKEN_PREFIX + refreshJwtToken);
     }

@@ -1,6 +1,5 @@
 package dev.ned.config;
 
-import dev.ned.model.User;
 import dev.ned.repositories.UserRepository;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -16,11 +15,8 @@ public class UserPrincipalDetailService implements UserDetailsService {
     }
 
     @Override
-    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        User user = userRepository.findByEmail(email);
-
-        // implement exception if User is not found
-
-        return new UserPrincipal(user);
+    public UserDetails loadUserByUsername(String email) {
+        return new UserPrincipal(userRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("User with " + email + " not found")));
     }
 }

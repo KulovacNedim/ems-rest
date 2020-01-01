@@ -35,8 +35,7 @@ public class JwtTokenProvider {
                     .withClaim("random", getRandomString(30))
                     .sign(HMAC512(JwtProperties.SECRET.getBytes()));
 
-            // store refresh token in db
-            User user = userRepository.findByEmail(principal.getUsername());
+            User user = userRepository.findByEmail(principal.getUsername()).get();
             user.setRefreshToken(new RefreshToken(token));
             this.userRepository.save(user);
         }
@@ -49,32 +48,24 @@ public class JwtTokenProvider {
     }
 
     protected String getRandomString(int n) {
-        // length is bounded by 256 Character
         byte[] array = new byte[256];
         new Random().nextBytes(array);
         String randomString
                 = new String(array, StandardCharsets.UTF_8);
 
-        // Create a StringBuffer to store the result
-        StringBuffer r = new StringBuffer();
+        StringBuffer result = new StringBuffer();
 
-        // Append first 20 alphanumeric characters
-        // from the generated random String into the result
         for (int k = 0; k < randomString.length(); k++) {
-
             char ch = randomString.charAt(k);
-
             if (((ch >= 'a' && ch <= 'z')
                     || (ch >= 'A' && ch <= 'Z')
                     || (ch >= '0' && ch <= '9'))
                     && (n > 0)) {
 
-                r.append(ch);
+                result.append(ch);
                 n--;
             }
         }
-
-        // return the resultant string
-        return r.toString();
+        return result.toString();
     }
 }

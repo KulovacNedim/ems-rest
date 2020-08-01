@@ -11,7 +11,6 @@ module application {
     requires spring.data.jpa;
 //    requires spring.beans;
 
-    requires users;
 
     opens dev.ned.application to spring.core, spring.beans, spring.context;
 

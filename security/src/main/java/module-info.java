@@ -1,5 +1,5 @@
 module security {
-    requires persistence;
+    requires users;
 
     requires spring.context;
     requires spring.security.config;

@@ -1,6 +1,6 @@
 package dev.ned.repositories;
 
-import dev.ned.model.User;
+import dev.ned.models.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

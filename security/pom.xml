@@ -14,8 +14,14 @@
     <dependencies>
         <dependency>
             <groupId>dev.ned</groupId>
-            <artifactId>persistence</artifactId>
+            <artifactId>users</artifactId>
             <version>${revision}</version>
+        </dependency>
+        <dependency>
+            <groupId>dev.ned</groupId>
+            <artifactId>users</artifactId>
+            <version>2.2.1.RELEASE</version>
+            <scope>compile</scope>
         </dependency>
     </dependencies>
 </project>

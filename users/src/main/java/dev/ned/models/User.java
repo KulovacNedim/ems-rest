@@ -1,4 +1,4 @@
-package dev.ned.model;
+package dev.ned.models;
 
 
 import javax.persistence.*;
@@ -32,16 +32,10 @@ public class User {
 
     private boolean isActive;
 
-    @OneToOne(cascade = {
-            CascadeType.PERSIST, CascadeType.MERGE,
-            CascadeType.DETACH, CascadeType.REFRESH})
-    @JoinColumn(name = "refresh_token_id")
-    private RefreshToken refreshToken;
-
     public User() {
     }
 
-    public User(String username, String firstName, String lastName, String email, String password, List<Role> roles, String permissions, boolean isActive, RefreshToken refreshToken) {
+    public User(String username, String firstName, String lastName, String email, String password, List<Role> roles, String permissions, boolean isActive) {
         this.username = username;
         this.firstName = firstName;
         this.lastName = lastName;
@@ -50,7 +44,6 @@ public class User {
 //        this.roles = roles;
         this.permissions = permissions;
         this.isActive = isActive;
-        this.refreshToken = refreshToken;
     }
 
     // adding Role to User's roles and setting User to Role
@@ -62,18 +55,6 @@ public class User {
         role.setUser(this);
     }
 
-
-    public RefreshToken getRefreshToken() {
-        return refreshToken;
-    }
-
-    public void setRefreshToken(RefreshToken refreshToken) {
-        this.refreshToken = refreshToken;
-    }
-
-    public String getUsername() {
-        return username;
-    }
 
     public void setUsername(String username) {
         this.username = username;

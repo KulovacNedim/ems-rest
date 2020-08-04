@@ -1,4 +1,4 @@
-package dev.ned.model;
+package dev.ned.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 

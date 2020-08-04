@@ -1,5 +1,6 @@
-package dev.ned.config;
+package dev.ned.config.services;
 
+import dev.ned.config.models.UserPrincipal;
 import dev.ned.repositories.UserRepository;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;

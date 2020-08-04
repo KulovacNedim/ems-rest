@@ -1,0 +1,45 @@
+##Database
+#
+#
+#cors:
+#  origin: http://localhost:3000
+#
+#
+#spring:
+#  jpa:
+#    hibernate:
+#      ddl-auto: create-drop
+#    database-platform: org.hibernate.dialect.MySQL57Dialect
+#    generate-ddl: true
+#    show-sql: true
+#  datasource:
+#    url: jdbc:mysql://localhost:3306/ems-rest?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+#    username: root
+#    password: toor
+#    driver-class-name: com.mysql.cj.jdbc.Driver
+#  security:
+#    oauth2:
+#      client:
+#        registration:
+#          facebook:
+#            client-id: 770154933503189
+#            client-secret: 138ebee7241e905cb2e1a143198b8af9
+#            scope:
+#              - user_posts
+#              - email
+#          google:
+##            provider: google
+#            client-id: 59622259263-kcisrpugdojdbmovb7cbcta41e2bsutc.apps.googleusercontent.com
+#            client-secret: 6GcDaR0re987MIjGiVL9HP-i
+#            client-authentication-method: basic
+#            authorization-grant-type: authorization_code
+#            scope:
+#              - openid
+#              - email
+#              - profile
+#              - https://www.googleapis.com/auth/tasks.readonly
+#        provider:
+##          google:
+##            issuer-uri: https://accounts.google.com
+#          facebook:
+#            user-info-uri: https://graph.facebook.com/me?fields=id,name,email

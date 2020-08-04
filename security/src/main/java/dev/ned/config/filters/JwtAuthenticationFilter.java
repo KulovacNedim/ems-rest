@@ -1,7 +1,9 @@
-package dev.ned.config;
+package dev.ned.config.filters;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.springframework.context.annotation.PropertySource;
+import dev.ned.config.payload.AuthenticationRequest;
+import dev.ned.config.util.JwtProperties;
+import dev.ned.config.util.JwtUtil;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -15,43 +17,33 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.ArrayList;
 
-@PropertySource("classpath:application.properties")
 public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
+
     private AuthenticationManager authenticationManager;
-    private JwtTokenProvider jwtTokenProvider;
+    private JwtUtil jwtUtil;
 
-
-    public JwtAuthenticationFilter(AuthenticationManager authenticationManager, JwtTokenProvider jwtTokenProvider) {
+    public JwtAuthenticationFilter(AuthenticationManager authenticationManager, JwtUtil jwtUtil) {
         this.authenticationManager = authenticationManager;
-        this.jwtTokenProvider = jwtTokenProvider;
+        this.jwtUtil = jwtUtil;
     }
 
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
-        LoginViewModel credentials = null;
+        AuthenticationRequest requestPayload = null;
         try {
-            credentials = new ObjectMapper().readValue(request.getInputStream(), LoginViewModel.class);
+            requestPayload = new ObjectMapper().readValue(request.getInputStream(), AuthenticationRequest.class);
         } catch (IOException e) {
-            e.printStackTrace();
+            return null;
         }
-
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
-                credentials.getEmail(),
-                credentials.getPassword(),
-                new ArrayList<>());
-
+                requestPayload.getEmail(), requestPayload.getPassword(), new ArrayList<>());
         Authentication auth = authenticationManager.authenticate(authenticationToken);
         return auth;
     }
 
     @Override
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) throws IOException, ServletException {
-        UserPrincipal userPrincipal = (UserPrincipal) authResult.getPrincipal();
-
-        String accessJwtToken = jwtTokenProvider.createJwtToken(userPrincipal, true);
-        String refreshJwtToken = jwtTokenProvider.createJwtToken(userPrincipal, false);
-
-        jwtTokenProvider.setHeader(response, JwtProperties.ACCESS_TOKEN_HEADER_STRING, JwtProperties.TOKEN_PREFIX + accessJwtToken);
-        jwtTokenProvider.setHeader(response, JwtProperties.REFRESH_TOKEN_HEADER_STRING, JwtProperties.TOKEN_PREFIX + refreshJwtToken);
+        String accessJwtToken = jwtUtil.generateJwtToken(authResult);
+        response.setHeader(JwtProperties.ACCESS_TOKEN_HEADER_STRING, JwtProperties.TOKEN_PREFIX + accessJwtToken);
     }
 }

@@ -1,17 +1,19 @@
 package dev.ned.repositories.seeder;
 
-import dev.ned.model.User;
 import dev.ned.model.Role;
+import dev.ned.model.User;
 import dev.ned.repositories.UserRepository;
 import org.springframework.boot.CommandLineRunner;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Arrays;
 import java.util.List;
 
 @Service
-public class DBInit implements CommandLineRunner {
+public class DBInit
+        implements CommandLineRunner
+{
     private UserRepository userRepository;
     private PasswordEncoder passwordEncoder;
 

@@ -1,17 +1,18 @@
-package dev.ned.config;
+package dev.ned.config.controllers;
 
+import dev.ned.config.exceptions.ResourceNotFoundException;
 import dev.ned.model.User;
 import dev.ned.repositories.UserRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
 
+@CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
+@RequestMapping("/api/auth")
 public class AuthController {
 
     private UserRepository userRepository;
@@ -20,10 +21,10 @@ public class AuthController {
         this.userRepository = userRepository;
     }
 
-    @PostMapping("/login")
-    public HttpStatus allowPreflightForLogin() {
-        return HttpStatus.OK;
-    }
+//    @PostMapping("/login")
+//    public HttpStatus allowPreflightForLogin() {
+//        return HttpStatus.OK;
+//    }
 
     @GetMapping("/user/me")
     public ResponseEntity<User> getCurrentUser() {

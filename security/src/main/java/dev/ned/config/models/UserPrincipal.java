@@ -1,4 +1,4 @@
-package dev.ned.config;
+package dev.ned.config.models;
 
 import dev.ned.model.User;
 import org.springframework.security.core.GrantedAuthority;
@@ -9,7 +9,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-public class UserPrincipal implements UserDetails {
+public class UserPrincipal
+        implements
+        UserDetails
+{
     private User user;
 
     public UserPrincipal(User user) {

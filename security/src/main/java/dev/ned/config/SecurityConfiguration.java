@@ -1,127 +1,95 @@
 package dev.ned.config;
 
-import dev.ned.config.services.MyUserDetailsService;
+import dev.ned.config.exceptions.UnauthorizedAccessHandler;
+import dev.ned.config.filters.JwtAuthenticationFilter;
+import dev.ned.config.filters.JwtAuthorizationFilter;
+import dev.ned.config.services.UserPrincipalDetailService;
+import dev.ned.config.services.UserService;
+import dev.ned.config.util.JwtUtil;
+import dev.ned.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
-import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.crypto.password.NoOpPasswordEncoder;
+import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.header.writers.StaticHeadersWriter;
 
-//@Configuration
+@Configuration
 @EnableWebSecurity
-public class SecurityConfiguration
-        extends WebSecurityConfigurerAdapter
-{
-
+public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
+    @Value("${cors.origin}")
+    private String origin;
     @Autowired
-    private MyUserDetailsService myUserDetailsService;
+    private JwtUtil jwtUtil;
+    @Autowired
+    UserService userService;
+    @Autowired
+    private UnauthorizedAccessHandler unauthorizedAccessHandler;
 
+    private UserPrincipalDetailService userPrincipalDetailService;
+    private UserRepository userRepository;
 
-
-    @Override
-    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-
-        auth.userDetailsService(myUserDetailsService);
-//        auth.inMemoryAuthentication()
-//                .withUser("user")
-//                .password("pass")
-//                .roles("USER")
-//                .and()
-//                .withUser("admin")
-//                .password("pass")
-//                .roles("ADMIN");
-    }
-
-    @Bean
-    PasswordEncoder getPasswordEncoder() {
-//        return new BCryptPasswordEncoder();
-        return NoOpPasswordEncoder.getInstance();
+    public SecurityConfiguration(UserPrincipalDetailService userPrincipalDetailService, UserRepository userRepository) {
+        this.userPrincipalDetailService = userPrincipalDetailService;
+        this.userRepository = userRepository;
     }
 
     @Override
-    @Bean
-    public AuthenticationManager authenticationManagerBean() throws Exception {
-        return super.authenticationManagerBean();
+    protected void configure(AuthenticationManagerBuilder auth) {
+        auth.authenticationProvider(authenticationProvider());
     }
 
-//
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http.csrf().disable()
+        http
+                .csrf().disable()
+                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                .and()
+                .exceptionHandling().authenticationEntryPoint(unauthorizedAccessHandler)
+                .and()
+                .addFilter(jwtAuthenticationFilter())
+                .addFilter(jwtAuthorizationFilter())
                 .authorizeRequests()
-                .antMatchers(("/authenticate")).permitAll()
-                .antMatchers("/admin").hasRole("ADMIN")
-                .antMatchers("/user").hasAnyRole("USER", "ADMIN")
-                .antMatchers("/").permitAll()
-                .anyRequest().authenticated();
+                .antMatchers("/api/auth/**").permitAll()
+
+                .antMatchers("/nice").hasRole("CEO")
+                .antMatchers("/users").hasRole("ADMIN")
+                .anyRequest().authenticated()
+                .and()
+
+                .headers()
+                .addHeaderWriter(new StaticHeadersWriter("Access-Control-Allow-Origin", origin))
+                .addHeaderWriter(new StaticHeadersWriter("Access-Control-Expose-Headers", "Authorization, RefreshToken"));
     }
 
+    @Bean
+    DaoAuthenticationProvider authenticationProvider() {
+        DaoAuthenticationProvider daoAuthenticationProvider = new DaoAuthenticationProvider();
+        daoAuthenticationProvider.setPasswordEncoder(passwordEncoder());
+        daoAuthenticationProvider.setUserDetailsService(this.userPrincipalDetailService);
+        return daoAuthenticationProvider;
+    }
 
+    @Bean
+    PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
 
+    private JwtAuthenticationFilter jwtAuthenticationFilter() throws Exception {
+        JwtAuthenticationFilter jwtAuthenticationFilter = new JwtAuthenticationFilter(authenticationManager(), jwtUtil);
+        jwtAuthenticationFilter.setFilterProcessesUrl("/api/auth/login");
+        return jwtAuthenticationFilter;
+    }
 
-
-
-
-
-
-
-
-
-
-
-
-    //    @Value("${cors.origin}")
-//    private String origin;
-//
-//    private UserPrincipalDetailService userPrincipalDetailService;
-//    private UserRepository userRepository;
-//    private JwtTokenProvider jwtTokenProvider;
-//
-//    public SecurityConfiguration(UserPrincipalDetailService userPrincipalDetailService, UserRepository userRepository, JwtTokenProvider jwtTokenProvider) {
-//        this.userPrincipalDetailService = userPrincipalDetailService;
-//        this.userRepository = userRepository;
-//        this.jwtTokenProvider = jwtTokenProvider;
-//    }
-//
-//    @Override
-//    protected void configure(AuthenticationManagerBuilder auth) {
-//        auth. (authenticationProvider());
-//    }
-//
-//    @Override
-//    protected void configure(HttpSecurity http) throws Exception {
-//        http
-//                .csrf().disable()
-//                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-//                .and()
-//                .formLogin()
-//                .usernameParameter("email")
-//                .and()
-//                .addFilter(new JwtAuthenticationFilter(authenticationManager(), this.jwtTokenProvider))
-//                .addFilter(new JwtAuthorizationFilter(authenticationManager(), this.userRepository, jwtTokenProvider))
-//                .authorizeRequests()
-//                .antMatchers("/login", "/auth/login").permitAll()
-//                .antMatchers("/nice").hasRole("CEO")
-//                .and()
-//                .headers()
-//                .addHeaderWriter(new StaticHeadersWriter("Access-Control-Allow-Origin", origin))
-//                .addHeaderWriter(new StaticHeadersWriter("Access-Control-Expose-Headers", "Authorization, RefreshToken"));
-//    }
-//
-//    @Bean
-//    DaoAuthenticationProvider authenticationProvider() {
-//        DaoAuthenticationProvider daoAuthenticationProvider = new DaoAuthenticationProvider();
-//        daoAuthenticationProvider.setPasswordEncoder(passwordEncoder());
-//        daoAuthenticationProvider.setUserDetailsService(this.userPrincipalDetailService);
-//        return daoAuthenticationProvider;
-//    }
-//
-//    @Bean
-//    PasswordEncoder passwordEncoder() {
-//        return new BCryptPasswordEncoder();
-//    }
+    private JwtAuthorizationFilter jwtAuthorizationFilter() throws Exception {
+        JwtAuthorizationFilter jwtAuthorizationFilter = new JwtAuthorizationFilter(authenticationManager(), userService, jwtUtil);
+        return jwtAuthorizationFilter;
+    }
 }

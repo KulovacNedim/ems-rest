@@ -1,4 +1,4 @@
-package dev.ned.config.models;
+package dev.ned.config.payload;
 
 public class AuthenticationResponse {
     private  final String jwt;

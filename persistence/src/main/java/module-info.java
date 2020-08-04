@@ -7,6 +7,7 @@ module persistence {
     requires java.persistence;
 //    requires spring.security.core;
     requires spring.boot;
+    requires spring.security.core;
 
     opens dev.ned.repositories to spring.core;
 

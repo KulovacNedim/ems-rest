@@ -1,11 +1,10 @@
-package dev.ned.repositories.seeder;
+package dev.ned.repositories;
 
-import dev.ned.model.Role;
-import dev.ned.model.User;
-import dev.ned.repositories.UserRepository;
+import dev.ned.models.Role;
+import dev.ned.models.User;
 import org.springframework.boot.CommandLineRunner;
-import org.springframework.stereotype.Service;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
 import java.util.List;

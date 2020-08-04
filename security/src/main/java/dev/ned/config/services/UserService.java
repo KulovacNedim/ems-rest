@@ -1,6 +1,6 @@
 package dev.ned.config.services;
 
-import dev.ned.model.User;
+import dev.ned.models.User;
 import dev.ned.repositories.UserRepository;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;

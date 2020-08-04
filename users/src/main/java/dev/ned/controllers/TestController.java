@@ -1,6 +1,6 @@
-package dev.ned.rest;
+package dev.ned.controllers;
 
-import dev.ned.model.User;
+import dev.ned.models.User;
 import dev.ned.repositories.UserRepository;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;

@@ -1,6 +1,6 @@
 package dev.ned.config.models;
 
-import dev.ned.model.User;
+import dev.ned.models.User;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;

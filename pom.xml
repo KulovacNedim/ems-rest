@@ -5,10 +5,8 @@
     <packaging>pom</packaging>
     <modules>
         <module>application</module>
-        <module>rest-api</module>
         <module>security</module>
-        <module>persistence</module>
-        <module>domain</module>
+        <module>users</module>
     </modules>
     <parent>
         <groupId>org.springframework.boot</groupId>

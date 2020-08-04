@@ -1,7 +1,7 @@
 package dev.ned.config.controllers;
 
 import dev.ned.config.exceptions.ResourceNotFoundException;
-import dev.ned.model.User;
+import dev.ned.models.User;
 import dev.ned.repositories.UserRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -34,7 +34,6 @@ public class AuthController {
         if (userOptional.isPresent()) {
             user = userOptional.get();
             user.setPassword(null);
-            user.setRefreshToken(null);
         } else {
             throw new ResourceNotFoundException("User", "email", email);
         }

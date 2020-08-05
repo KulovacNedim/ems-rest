@@ -1,0 +1,71 @@
+package dev.ned.models;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+import javax.persistence.*;
+import java.util.List;
+import java.util.Objects;
+
+@Entity
+@JsonIgnoreProperties(value = "users", allowSetters = true)
+public class Permission {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long permission_id;
+
+    @Column(nullable = false)
+    private String permissionName;
+
+    @ManyToMany(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.DETACH, CascadeType.REFRESH})
+    @JoinTable(name = "user_permissions",
+            joinColumns = @JoinColumn(name = "permission_id"),
+            inverseJoinColumns = @JoinColumn(name = "user_id"))
+    private List<User> users;
+
+    public Permission() {
+    }
+
+    public Permission(String permissionName) {
+        this.permissionName = permissionName;
+    }
+
+    public Long getPermission_id() {
+        return permission_id;
+    }
+
+    public void setPermission_id(Long permission_id) {
+        this.permission_id = permission_id;
+    }
+
+    public String getPermissionName() {
+        return permissionName;
+    }
+
+    public void setPermissionName(String permissionName) {
+        this.permissionName = permissionName;
+    }
+
+    public List<User> getUsers() {
+        return users;
+    }
+
+    public void setUsers(List<User> users) {
+        this.users = users;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Permission that = (Permission) o;
+        return Objects.equals(permission_id, that.permission_id) &&
+                Objects.equals(permissionName, that.permissionName) &&
+                Objects.equals(users, that.users);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(permission_id, permissionName, users);
+    }
+}

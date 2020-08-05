@@ -13,6 +13,7 @@ module users {
 //    supports hibernate
     requires com.fasterxml.classmate;
     requires net.bytebuddy;
+    requires org.hibernate.orm.core;
 
     exports dev.ned.controllers to spring.beans, spring.web;
     opens dev.ned.models to org.hibernate.orm.core, spring.core;

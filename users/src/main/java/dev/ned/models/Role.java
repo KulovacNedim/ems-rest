@@ -3,9 +3,11 @@ package dev.ned.models;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import javax.persistence.*;
+import java.util.List;
+import java.util.Objects;
 
-//@Data
 @Entity
+@JsonIgnoreProperties(value = "users", allowSetters = true)
 public class Role {
 
     @Id
@@ -15,17 +17,17 @@ public class Role {
     @Column(nullable = false)
     private String roleName;
 
-    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.DETACH, CascadeType.REFRESH})
-    @JoinColumn(name = "id")
-    @JsonIgnoreProperties(value = "roles", allowSetters = true)
-    private User user;
+    @ManyToMany(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.DETACH, CascadeType.REFRESH})
+    @JoinTable(name = "user_roles",
+            joinColumns = @JoinColumn(name = "role_id"),
+            inverseJoinColumns = @JoinColumn(name = "user_id"))
+    private List<User> users;
 
     public Role() {
     }
 
-    public Role(String roleName, User user) {
+    public Role(String roleName) {
         this.roleName = roleName;
-        this.user = user;
     }
 
     public Long getRole_id() {
@@ -44,19 +46,26 @@ public class Role {
         this.roleName = roleName;
     }
 
-    public User getUser() {
-        return user;
+    public List<User> getUsers() {
+        return users;
     }
 
-    public void setUser(User user) {
-        this.user = user;
+    public void setUsers(List<User> users) {
+        this.users = users;
     }
 
     @Override
-    public String toString() {
-        return "Role{" +
-                "role_id=" + role_id +
-                ", roleName='" + roleName + '\'' +
-                '}';
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Role role = (Role) o;
+        return Objects.equals(role_id, role.role_id) &&
+                Objects.equals(roleName, role.roleName) &&
+                Objects.equals(users, role.users);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(role_id, roleName, users);
     }
 }

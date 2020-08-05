@@ -9,10 +9,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-public class UserPrincipal
-        implements
-        UserDetails
-{
+public class UserPrincipal implements UserDetails {
     private User user;
 
     public UserPrincipal(User user) {
@@ -22,20 +19,15 @@ public class UserPrincipal
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         List<GrantedAuthority> authorities = new ArrayList<>();
-
         this.user.getRoles().forEach(role -> {
             GrantedAuthority authority = new SimpleGrantedAuthority("ROLE_" + role.getRoleName());
             authorities.add(authority);
         });
-
-        // do same for roles (without of ROLE_)
-
-
+        this.user.getPermissions().forEach(permission -> {
+            GrantedAuthority authority = new SimpleGrantedAuthority(permission.getPermissionName());
+            authorities.add(authority);
+        });
         return authorities;
-    }
-
-    public Long getId() {
-        return this.user.getId();
     }
 
     @Override
@@ -55,7 +47,7 @@ public class UserPrincipal
 
     @Override
     public boolean isAccountNonLocked() {
-        return true;
+        return !this.user.isLocked();
     }
 
     @Override
@@ -65,13 +57,6 @@ public class UserPrincipal
 
     @Override
     public boolean isEnabled() {
-        return this.user.isActive();
-    }
-
-    @Override
-    public String toString() {
-        return "UserPrincipal{" +
-                "user=" + user.toString() +
-                '}';
+        return this.user.isEnabled();
     }
 }

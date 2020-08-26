@@ -1,6 +1,7 @@
 package dev.ned.config;
 
 import dev.ned.config.exceptions.UnauthorizedAccessHandler;
+import dev.ned.config.filters.CorsFilter;
 import dev.ned.config.filters.JwtAuthenticationFilter;
 import dev.ned.config.filters.JwtAuthorizationFilter;
 import dev.ned.config.services.UserPrincipalDetailService;
@@ -8,7 +9,6 @@ import dev.ned.config.services.UserService;
 import dev.ned.config.util.JwtUtil;
 import dev.ned.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -19,13 +19,13 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.header.writers.StaticHeadersWriter;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
-    @Value("${cors.origin}")
-    private String origin;
+    @Autowired
+    CorsFilter corsFilter;
     @Autowired
     private JwtUtil jwtUtil;
     @Autowired
@@ -54,6 +54,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .and()
                 .exceptionHandling().authenticationEntryPoint(unauthorizedAccessHandler)
                 .and()
+                .addFilterBefore(corsFilter, UsernamePasswordAuthenticationFilter.class)
                 .addFilter(jwtAuthenticationFilter())
                 .addFilter(jwtAuthorizationFilter())
                 .authorizeRequests()
@@ -61,12 +62,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
                 .antMatchers("/nice").hasRole("CEO")
                 .antMatchers("/users").hasRole("ADMIN")
-                .anyRequest().authenticated()
-                .and()
-
-                .headers()
-                .addHeaderWriter(new StaticHeadersWriter("Access-Control-Allow-Origin", origin))
-                .addHeaderWriter(new StaticHeadersWriter("Access-Control-Expose-Headers", "Authorization, RefreshToken"));
+                .anyRequest().authenticated();
     }
 
     @Bean

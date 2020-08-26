@@ -15,10 +15,12 @@ module security {
     requires java.jwt;
 
     opens dev.ned.config to spring.core;
+    opens dev.ned.config.filters to spring.core;
     exports dev.ned.config to spring.beans, spring.context, spring.web, com.fasterxml.jackson.databind;
     exports dev.ned.config.services to spring.beans;
     exports dev.ned.config.util to spring.beans, java.xml.bind;
     exports dev.ned.config.payload to spring.beans, com.fasterxml.jackson.databind;
     exports dev.ned.config.exceptions to spring.beans;
-    exports dev.ned.config.controllers to spring.beans;
+    exports dev.ned.config.controllers to spring.beans, spring.web;
+    exports dev.ned.config.filters to spring.beans;
 }

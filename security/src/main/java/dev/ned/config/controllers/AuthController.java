@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
 
-@CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
@@ -21,12 +20,7 @@ public class AuthController {
         this.userRepository = userRepository;
     }
 
-//    @PostMapping("/login")
-//    public HttpStatus allowPreflightForLogin() {
-//        return HttpStatus.OK;
-//    }
-
-    @GetMapping("/user/me")
+    @GetMapping("/users/me")
     public ResponseEntity<User> getCurrentUser() {
         String email = SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString();
         Optional<User> userOptional = userRepository.findByEmail(email);

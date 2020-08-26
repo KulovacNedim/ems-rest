@@ -27,7 +27,7 @@ public class DBInit implements CommandLineRunner {
         admin.setEnabled(true);
         admin.setLocked(false);
         admin.setEmail("admin@gmail.com");
-        admin.setPassword(passwordEncoder.encode("adm123"));
+        admin.setPassword(passwordEncoder.encode("adm12345"));
         admin.setFirstName("admin name");
         admin.setLastName("admin name");
         admin.addPermission(new Permission("EDIT_PROFILE"));
@@ -40,7 +40,7 @@ public class DBInit implements CommandLineRunner {
         teacher.setLocked(false);
         teacher.addPermission(new Permission("ACCESS_API"));
         teacher.setEmail("teacher@gmail.com");
-        teacher.setPassword(passwordEncoder.encode("tea123"));
+        teacher.setPassword(passwordEncoder.encode("tea12345"));
         teacher.setFirstName("teacher name");
         teacher.setLastName("last name");
         teacher.addRole(new Role("TEACHER"));

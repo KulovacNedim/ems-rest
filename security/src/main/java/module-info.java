@@ -13,6 +13,8 @@ module security {
     requires spring.core;
     requires com.fasterxml.jackson.databind;
     requires java.jwt;
+//    requires sendgrid.java;
+//    requires java.http.client;
 
     opens dev.ned.config to spring.core;
     opens dev.ned.config.filters to spring.core;

@@ -7,13 +7,14 @@ import dev.ned.config.filters.JwtAuthorizationFilter;
 import dev.ned.config.services.UserPrincipalDetailService;
 import dev.ned.config.services.UserService;
 import dev.ned.config.util.JwtUtil;
-import dev.ned.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -34,11 +35,9 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     private UnauthorizedAccessHandler unauthorizedAccessHandler;
 
     private UserPrincipalDetailService userPrincipalDetailService;
-    private UserRepository userRepository;
 
-    public SecurityConfiguration(UserPrincipalDetailService userPrincipalDetailService, UserRepository userRepository) {
+    public SecurityConfiguration(UserPrincipalDetailService userPrincipalDetailService) {
         this.userPrincipalDetailService = userPrincipalDetailService;
-        this.userRepository = userRepository;
     }
 
     @Override
@@ -64,6 +63,14 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .antMatchers("/users").hasRole("ADMIN")
                 .anyRequest().authenticated();
     }
+
+    @Override
+    public void configure(WebSecurity webSecurity) {
+        webSecurity
+                .ignoring()
+                .antMatchers(HttpMethod.POST, "/api/auth/signup");
+    }
+
 
     @Bean
     DaoAuthenticationProvider authenticationProvider() {

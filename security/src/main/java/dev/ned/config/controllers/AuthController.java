@@ -1,6 +1,8 @@
 package dev.ned.config.controllers;
 
 import dev.ned.config.exceptions.ResourceNotFoundException;
+import dev.ned.config.payload.AuthenticationRequest;
+import dev.ned.config.services.AuthService;
 import dev.ned.models.User;
 import dev.ned.repositories.UserRepository;
 import org.springframework.http.HttpStatus;
@@ -8,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.Optional;
 
 @RestController
@@ -15,12 +18,14 @@ import java.util.Optional;
 public class AuthController {
 
     private UserRepository userRepository;
+    private AuthService authService;
 
-    public AuthController(UserRepository userRepository) {
+    public AuthController(UserRepository userRepository, AuthService authService) {
         this.userRepository = userRepository;
+        this.authService = authService;
     }
 
-    @GetMapping("/users/me")
+    @GetMapping("/me")
     public ResponseEntity<User> getCurrentUser() {
         String email = SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString();
         Optional<User> userOptional = userRepository.findByEmail(email);
@@ -32,5 +37,11 @@ public class AuthController {
             throw new ResourceNotFoundException("User", "email", email);
         }
         return ResponseEntity.status(HttpStatus.OK).body(user);
+    }
+
+    @PostMapping("/signup")
+    public boolean signUp(@Valid @RequestBody AuthenticationRequest requestPayload) {
+        authService.signUp(requestPayload);
+        return true;
     }
 }

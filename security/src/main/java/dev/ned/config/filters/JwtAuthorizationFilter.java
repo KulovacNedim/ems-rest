@@ -6,6 +6,7 @@ import dev.ned.config.models.UserPrincipal;
 import dev.ned.config.services.UserService;
 import dev.ned.config.util.JwtProperties;
 import dev.ned.config.util.JwtUtil;
+import dev.ned.models.User;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -17,6 +18,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Optional;
 
 public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
     private UserService userService;
@@ -60,8 +62,9 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
     private Authentication getAuthentication(String token) {
         DecodedJWT decodedJwt = jwtUtil.parseJwt(token);
         String email = decodedJwt.getSubject();
-        if (email != null && !email.equals("")) {
-            UserPrincipal principal = new UserPrincipal(userService.getUserByEmail(email));
+        Optional<User> userOptional = userService.getUserByEmail(email);
+        if (email != null && !email.equals("") && userOptional.isPresent()) {
+            UserPrincipal principal = new UserPrincipal(userOptional.get());
             UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(email, null, principal.getAuthorities());
             return auth;
         }

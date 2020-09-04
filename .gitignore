@@ -2,3 +2,5 @@
 target/
 image/
 *.iml
+
+**/*.properties

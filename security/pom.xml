@@ -23,5 +23,29 @@
             <version>2.2.1.RELEASE</version>
             <scope>compile</scope>
         </dependency>
+        <dependency>
+            <groupId>dev.ned</groupId>
+            <artifactId>mailer</artifactId>
+            <version>2.2.1.RELEASE</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>dev.ned</groupId>
+            <artifactId>mailer</artifactId>
+            <version>2.2.1.RELEASE</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>dev.ned</groupId>
+            <artifactId>mailer</artifactId>
+            <version>2.2.1.RELEASE</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>dev.ned</groupId>
+            <artifactId>mailer</artifactId>
+            <version>2.2.1.RELEASE</version>
+            <scope>compile</scope>
+        </dependency>
     </dependencies>
 </project>

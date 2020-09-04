@@ -1,41 +1,39 @@
 package dev.ned.config.services;
 
-//import com.sendgrid.Request;
-//import com.sendgrid.Response;
-//import com.sendgrid.SendGrid;
-//import com.sendgrid.helpers.mail.Mail;
-//import com.sendgrid.helpers.mail.objects.Email;
-//import com.sendgrid.helpers.mail.objects.Content;
-//import com.sendgrid.Method;
-
+import dev.ned.helpers.EmailTypeIdentifierEnum;
+import dev.ned.mailer.SendGridMailer;
+import dev.ned.config.exceptions.EmailCouldNotBeSentException;
+import dev.ned.config.exceptions.EmailExistsException;
+import dev.ned.config.models.EmailConfirm;
 import dev.ned.config.payload.AuthenticationRequest;
 import dev.ned.models.User;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import javax.validation.Valid;
-import java.io.IOException;
-import java.util.Optional;
-
-//import java.lang.reflect.Method;
+import java.util.*;
 
 @Service
 public class AuthService {
     private UserService userService;
     private PasswordEncoder passwordEncoder;
+    private EmailConfirmService emailConfirmService;
 
-    public AuthService(UserService userService, PasswordEncoder passwordEncoder) {
+    @Autowired
+    SendGridMailer sendGridMailer;
+
+    public AuthService(UserService userService, PasswordEncoder passwordEncoder, EmailConfirmService emailConfirmService) {
         this.userService = userService;
         this.passwordEncoder = passwordEncoder;
+        this.emailConfirmService = emailConfirmService;
     }
 
-    public boolean signUp(@Valid AuthenticationRequest requestPayload) throws IOException {
-        // check if user already exists
+    public String signUp(@Valid AuthenticationRequest requestPayload) throws Exception {
         Optional<User> userOptional = userService.getUserByEmail(requestPayload.getEmail());
-        User user = null;
-        if(userOptional.isPresent()) return false;
+        if(userOptional.isPresent()) throw new EmailExistsException(requestPayload.getEmail());
 
-        user = new User();
+        User user = new User();
         user.setEnabled(false);
         user.setLocked(false);
         user.setEmail(requestPayload.getEmail());
@@ -44,31 +42,22 @@ public class AuthService {
         user.setLastName("last name");
         //roles and permissions are not set
 
+        User savedUser = userService.save(user);
+        if (savedUser == null) throw new Exception("Error occurred. User could not be saved in the database.");
+
+        String randomString = UUID.randomUUID().toString();
+        Date expirationDate = new Date(System.currentTimeMillis() + 300_000); // 5 minutes
+        EmailConfirm emailConfirm = new EmailConfirm(savedUser, randomString, expirationDate);
+        EmailConfirm savedEmailConfirm = emailConfirmService.save(emailConfirm);
+        if (savedEmailConfirm == null)  throw new Exception("Error occurred. Data could not be saved in the database.");
+
+        Map<String, String> data = new HashMap<>();
+        data.put("link", randomString);
+        int status = sendGridMailer.sendPersonalizedEmail(user.getEmail(), data, EmailTypeIdentifierEnum.EMAIL_CONFIRMATION);
+        if (199 < status && status < 300) return user.getEmail();
+
         // set notification that new registration is made
 
-
-        User savedUser = userService.save(user);
-
-//        Email from = new Email("ems.app.setup@gmail.com");
-//        String subject = "Sending with SendGrid is Fun";
-//        Email to = new Email("nedim.kulovac@gmail.com");
-//        Content content = new Content("text/plain", "and easy to do anywhere, even with Java");
-//        Mail mail = new Mail(from, subject, to, content);
-//
-//        SendGrid sg = new SendGrid(System.getenv("SENDGRID_API_KEY"));
-//        Request request = new Request();
-//        try {
-//            request.setMethod(Method.POST);
-//            request.setEndpoint("mail/send");
-//            request.setBody(mail.build());
-//            Response response = sg.api(request);
-//            System.out.println(response.getStatusCode());
-//            System.out.println(response.getBody());
-//            System.out.println(response.getHeaders());
-//        } catch (IOException ex) {
-//            throw ex;
-//        }
-
-        return true;
+        throw new EmailCouldNotBeSentException(user.getEmail());
     }
 }

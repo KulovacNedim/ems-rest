@@ -1,6 +1,6 @@
 package dev.ned.config.controllers;
 
-import dev.ned.config.exceptions.ResourceNotFoundException;
+import dev.ned.exceptions.ResourceNotFoundException;
 import dev.ned.config.models.ApiResponse;
 import dev.ned.config.payload.AuthenticationRequest;
 import dev.ned.config.services.AuthService;
@@ -41,8 +41,8 @@ public class AuthController {
     }
 
     @PostMapping("/signup")
-    public ResponseEntity<?> signUp(@Valid @RequestBody AuthenticationRequest requestPayload) throws Exception {
-        ApiResponse res = new ApiResponse(true, String.format("User account with email %s registered successfully", authService.signUp(requestPayload)));
+    public ResponseEntity<?> signUp(@Valid @RequestBody AuthenticationRequest authPayload) throws Exception {
+        ApiResponse res = new ApiResponse(true, String.format("User account with email %s registered successfully", authService.signUp(authPayload)));
         return ResponseEntity.status(HttpStatus.OK).body(res);
     }
 }

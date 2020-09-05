@@ -1,4 +1,4 @@
-package dev.ned.config.exceptions;
+package dev.ned.exceptions;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;

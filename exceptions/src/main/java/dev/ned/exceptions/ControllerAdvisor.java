@@ -1,6 +1,6 @@
-package dev.ned.config.exceptions;
+package dev.ned.exceptions;
 
-import dev.ned.config.models.ApiError;
+import dev.ned.payloads.ApiError;
 import org.springframework.beans.TypeMismatchException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -27,6 +27,14 @@ import java.util.List;
 
 @ControllerAdvice
 public class ControllerAdvisor extends ResponseEntityExceptionHandler {
+
+    @ExceptionHandler(ReCaptchaFailedException.class)
+    public ResponseEntity<Object> handleReCaptchaFailedException(
+            ReCaptchaFailedException ex, WebRequest request) {
+        final String error = ex.getMessage();
+        final ApiError apiError = new ApiError(HttpStatus.UNAUTHORIZED, ex.getLocalizedMessage(), error);
+        return new ResponseEntity<Object>(apiError, new HttpHeaders(), apiError.getStatus());
+    }
 
     @ExceptionHandler(EmailExistsException.class)
     public ResponseEntity<Object> handleEmailExistsException(

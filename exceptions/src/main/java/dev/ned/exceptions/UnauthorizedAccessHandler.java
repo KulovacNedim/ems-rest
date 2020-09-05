@@ -1,4 +1,4 @@
-package dev.ned.config.exceptions;
+package dev.ned.exceptions;
 
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;

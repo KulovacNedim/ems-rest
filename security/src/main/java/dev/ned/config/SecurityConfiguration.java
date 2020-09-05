@@ -1,12 +1,12 @@
 package dev.ned.config;
 
-import dev.ned.config.exceptions.UnauthorizedAccessHandler;
 import dev.ned.config.filters.CorsFilter;
 import dev.ned.config.filters.JwtAuthenticationFilter;
 import dev.ned.config.filters.JwtAuthorizationFilter;
 import dev.ned.config.services.UserPrincipalDetailService;
 import dev.ned.config.services.UserService;
 import dev.ned.config.util.JwtUtil;
+import dev.ned.exceptions.UnauthorizedAccessHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

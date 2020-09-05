@@ -4,13 +4,15 @@ public class AuthenticationRequest {
 
     private String email;
     private String password;
+    private String reCaptchaToken;
 
     public AuthenticationRequest() {
     }
 
-    public AuthenticationRequest(String email, String password) {
+    public AuthenticationRequest(String email, String password, String reCaptchaToken) {
         this.email = email;
         this.password = password;
+        this.reCaptchaToken = reCaptchaToken;
     }
 
     public String getEmail() {
@@ -27,5 +29,13 @@ public class AuthenticationRequest {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public String getReCaptchaToken() {
+        return reCaptchaToken;
+    }
+
+    public void setReCaptchaToken(String reCaptchaToken) {
+        this.reCaptchaToken = reCaptchaToken;
     }
 }

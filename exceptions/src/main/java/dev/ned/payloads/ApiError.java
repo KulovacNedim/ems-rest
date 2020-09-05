@@ -1,4 +1,4 @@
-package dev.ned.config.models;
+package dev.ned.payloads;
 
 import org.springframework.http.HttpStatus;
 

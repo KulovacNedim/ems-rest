@@ -1,4 +1,4 @@
-package dev.ned.config.exceptions;
+package dev.ned.exceptions;
 
 public class EmailCouldNotBeSentException extends RuntimeException {
     public EmailCouldNotBeSentException(String email) {

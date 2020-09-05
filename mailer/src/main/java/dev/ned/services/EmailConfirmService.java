@@ -1,7 +1,7 @@
-package dev.ned.config.services;
+package dev.ned.services;
 
-import dev.ned.config.models.EmailConfirm;
-import dev.ned.config.repositories.EmailConfirmRepository;
+import dev.ned.models.EmailConfirm;
+import dev.ned.repositories.EmailConfirmRepository;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -12,7 +12,7 @@ public class EmailConfirmService {
         this.emailConfirmRepository = emailConfirmRepository;
     }
 
-    public EmailConfirm save (EmailConfirm emailConfirm) {
+    public EmailConfirm save(EmailConfirm emailConfirm) {
         return emailConfirmRepository.save(emailConfirm);
     }
 }

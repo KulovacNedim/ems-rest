@@ -1,12 +1,15 @@
 package dev.ned.config.services;
 
+import dev.ned.config.payload.AuthenticationRequest;
+import dev.ned.exceptions.EmailCouldNotBeSentException;
+import dev.ned.exceptions.EmailExistsException;
+import dev.ned.exceptions.ReCaptchaFailedException;
 import dev.ned.helpers.EmailTypeIdentifierEnum;
 import dev.ned.mailer.SendGridMailer;
-import dev.ned.config.exceptions.EmailCouldNotBeSentException;
-import dev.ned.config.exceptions.EmailExistsException;
-import dev.ned.config.models.EmailConfirm;
-import dev.ned.config.payload.AuthenticationRequest;
+import dev.ned.models.EmailConfirm;
 import dev.ned.models.User;
+import dev.ned.recaptcha.services.CaptchaService;
+import dev.ned.services.EmailConfirmService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -23,21 +26,27 @@ public class AuthService {
     @Autowired
     SendGridMailer sendGridMailer;
 
+    @Autowired
+    CaptchaService captchaService;
+
     public AuthService(UserService userService, PasswordEncoder passwordEncoder, EmailConfirmService emailConfirmService) {
         this.userService = userService;
         this.passwordEncoder = passwordEncoder;
         this.emailConfirmService = emailConfirmService;
     }
 
-    public String signUp(@Valid AuthenticationRequest requestPayload) throws Exception {
-        Optional<User> userOptional = userService.getUserByEmail(requestPayload.getEmail());
-        if(userOptional.isPresent()) throw new EmailExistsException(requestPayload.getEmail());
+    public String signUp(@Valid AuthenticationRequest authPayload) throws Exception {
+        boolean captchaVerified = captchaService.verify(authPayload.getReCaptchaToken());
+        if(!captchaVerified) throw new ReCaptchaFailedException();
+
+        Optional<User> userOptional = userService.getUserByEmail(authPayload.getEmail());
+        if(userOptional.isPresent()) throw new EmailExistsException(authPayload.getEmail());
 
         User user = new User();
         user.setEnabled(false);
         user.setLocked(false);
-        user.setEmail(requestPayload.getEmail());
-        user.setPassword(passwordEncoder.encode(requestPayload.getPassword()));
+        user.setEmail(authPayload.getEmail());
+        user.setPassword(passwordEncoder.encode(authPayload.getPassword()));
         user.setFirstName("first name");
         user.setLastName("last name");
         //roles and permissions are not set

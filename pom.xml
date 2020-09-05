@@ -8,6 +8,8 @@
         <module>security</module>
         <module>users</module>
         <module>mailer</module>
+        <module>exceptions</module>
+        <module>utils</module>
     </modules>
     <parent>
         <groupId>org.springframework.boot</groupId>

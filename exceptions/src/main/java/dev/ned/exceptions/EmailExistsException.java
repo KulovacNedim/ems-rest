@@ -1,4 +1,4 @@
-package dev.ned.config.exceptions;
+package dev.ned.exceptions;
 
 public class EmailExistsException extends RuntimeException {
     public EmailExistsException(String email) {

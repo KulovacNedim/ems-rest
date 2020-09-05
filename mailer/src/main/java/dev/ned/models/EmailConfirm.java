@@ -1,6 +1,4 @@
-package dev.ned.config.models;
-
-import dev.ned.models.User;
+package dev.ned.models;
 
 import javax.persistence.*;
 import java.util.Date;

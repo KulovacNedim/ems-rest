@@ -1,5 +1,6 @@
 package dev.ned.config;
 
+import dev.ned.config.filters.CaptchaFilter;
 import dev.ned.config.filters.CorsFilter;
 import dev.ned.config.filters.JwtAuthenticationFilter;
 import dev.ned.config.filters.JwtAuthorizationFilter;
@@ -28,6 +29,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Autowired
     CorsFilter corsFilter;
     @Autowired
+    CaptchaFilter capthaFilter;
+    @Autowired
     private JwtUtil jwtUtil;
     @Autowired
     UserService userService;
@@ -54,6 +57,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .exceptionHandling().authenticationEntryPoint(unauthorizedAccessHandler)
                 .and()
                 .addFilterBefore(corsFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(capthaFilter, UsernamePasswordAuthenticationFilter.class)
                 .addFilter(jwtAuthenticationFilter())
                 .addFilter(jwtAuthorizationFilter())
                 .authorizeRequests()

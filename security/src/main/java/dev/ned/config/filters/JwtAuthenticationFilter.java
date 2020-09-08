@@ -4,6 +4,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.ned.config.payload.AuthenticationRequest;
 import dev.ned.config.util.JwtProperties;
 import dev.ned.config.util.JwtUtil;
+import dev.ned.exceptions.ReCaptchaFailedException;
+import dev.ned.recaptcha.services.CaptchaService;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -21,10 +23,12 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
     private AuthenticationManager authenticationManager;
     private JwtUtil jwtUtil;
+    private CaptchaService captchaService;
 
-    public JwtAuthenticationFilter(AuthenticationManager authenticationManager, JwtUtil jwtUtil) {
+    public JwtAuthenticationFilter(AuthenticationManager authenticationManager, JwtUtil jwtUtil, CaptchaService captchaService) {
         this.authenticationManager = authenticationManager;
         this.jwtUtil = jwtUtil;
+        this.captchaService = captchaService;
     }
 
     @Override
@@ -35,6 +39,10 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         } catch (IOException e) {
             return null;
         }
+
+        boolean captchaVerified = captchaService.verify(requestPayload.getReCaptchaToken());
+        if (!captchaVerified) ReCaptchaFailedException.throwLoginReCaptchaException(request, response);
+
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
                 requestPayload.getEmail(), requestPayload.getPassword(), new ArrayList<>());
         Authentication auth = authenticationManager.authenticate(authenticationToken);

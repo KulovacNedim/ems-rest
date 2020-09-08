@@ -1,6 +1,5 @@
 package dev.ned.config;
 
-import dev.ned.config.filters.CaptchaFilter;
 import dev.ned.config.filters.CorsFilter;
 import dev.ned.config.filters.JwtAuthenticationFilter;
 import dev.ned.config.filters.JwtAuthorizationFilter;
@@ -8,6 +7,7 @@ import dev.ned.config.services.UserPrincipalDetailService;
 import dev.ned.config.services.UserService;
 import dev.ned.config.util.JwtUtil;
 import dev.ned.exceptions.UnauthorizedAccessHandler;
+import dev.ned.recaptcha.services.CaptchaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -29,9 +29,9 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Autowired
     CorsFilter corsFilter;
     @Autowired
-    CaptchaFilter capthaFilter;
-    @Autowired
     private JwtUtil jwtUtil;
+    @Autowired
+    CaptchaService captchaService;
     @Autowired
     UserService userService;
     @Autowired
@@ -57,7 +57,6 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .exceptionHandling().authenticationEntryPoint(unauthorizedAccessHandler)
                 .and()
                 .addFilterBefore(corsFilter, UsernamePasswordAuthenticationFilter.class)
-                .addFilterBefore(capthaFilter, UsernamePasswordAuthenticationFilter.class)
                 .addFilter(jwtAuthenticationFilter())
                 .addFilter(jwtAuthorizationFilter())
                 .authorizeRequests()
@@ -90,7 +89,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     }
 
     private JwtAuthenticationFilter jwtAuthenticationFilter() throws Exception {
-        JwtAuthenticationFilter jwtAuthenticationFilter = new JwtAuthenticationFilter(authenticationManager(), jwtUtil);
+        JwtAuthenticationFilter jwtAuthenticationFilter = new JwtAuthenticationFilter(authenticationManager(), jwtUtil, captchaService);
         jwtAuthenticationFilter.setFilterProcessesUrl("/api/auth/login");
         return jwtAuthenticationFilter;
     }

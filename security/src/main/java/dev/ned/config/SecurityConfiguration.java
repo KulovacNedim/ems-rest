@@ -3,6 +3,7 @@ package dev.ned.config;
 import dev.ned.config.filters.CorsFilter;
 import dev.ned.config.filters.JwtAuthenticationFilter;
 import dev.ned.config.filters.JwtAuthorizationFilter;
+import dev.ned.config.services.AuthService;
 import dev.ned.config.services.UserPrincipalDetailService;
 import dev.ned.config.services.UserService;
 import dev.ned.config.util.JwtUtil;
@@ -34,6 +35,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     CaptchaService captchaService;
     @Autowired
     UserService userService;
+    @Autowired
+    AuthService authService;
     @Autowired
     private UnauthorizedAccessHandler unauthorizedAccessHandler;
 
@@ -89,7 +92,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     }
 
     private JwtAuthenticationFilter jwtAuthenticationFilter() throws Exception {
-        JwtAuthenticationFilter jwtAuthenticationFilter = new JwtAuthenticationFilter(authenticationManager(), jwtUtil, captchaService);
+        JwtAuthenticationFilter jwtAuthenticationFilter = new JwtAuthenticationFilter(authenticationManager(), jwtUtil, captchaService, authService);
         jwtAuthenticationFilter.setFilterProcessesUrl("/api/auth/login");
         return jwtAuthenticationFilter;
     }

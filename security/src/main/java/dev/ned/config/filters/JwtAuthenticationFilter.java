@@ -2,6 +2,7 @@ package dev.ned.config.filters;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.ned.config.payload.AuthenticationRequest;
+import dev.ned.config.services.AuthService;
 import dev.ned.config.util.JwtProperties;
 import dev.ned.config.util.JwtUtil;
 import dev.ned.exceptions.ReCaptchaFailedException;
@@ -24,11 +25,13 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     private AuthenticationManager authenticationManager;
     private JwtUtil jwtUtil;
     private CaptchaService captchaService;
+    private AuthService authService;
 
-    public JwtAuthenticationFilter(AuthenticationManager authenticationManager, JwtUtil jwtUtil, CaptchaService captchaService) {
+    public JwtAuthenticationFilter(AuthenticationManager authenticationManager, JwtUtil jwtUtil, CaptchaService captchaService, AuthService authService) {
         this.authenticationManager = authenticationManager;
         this.jwtUtil = jwtUtil;
         this.captchaService = captchaService;
+        this.authService = authService;
     }
 
     @Override
@@ -42,6 +45,12 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
         boolean captchaVerified = captchaService.verify(requestPayload.getReCaptchaToken());
         if (!captchaVerified) ReCaptchaFailedException.throwLoginReCaptchaException(request, response);
+
+        boolean passwordVerified = authService.verifyPassword(requestPayload.getPassword());
+        if (!passwordVerified) {
+            AuthService.throwLoginPasswordException(request, response);
+            return null;
+        }
 
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
                 requestPayload.getEmail(), requestPayload.getPassword(), new ArrayList<>());

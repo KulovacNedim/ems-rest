@@ -1,4 +1,4 @@
-package dev.ned.config.services;
+package dev.ned.recaptcha.services;
 
 import dev.ned.models.User;
 import dev.ned.repositories.UserRepository;

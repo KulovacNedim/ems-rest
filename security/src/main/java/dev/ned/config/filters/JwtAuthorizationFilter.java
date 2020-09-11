@@ -3,7 +3,7 @@ package dev.ned.config.filters;
 import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import dev.ned.config.models.UserPrincipal;
-import dev.ned.config.services.UserService;
+import dev.ned.recaptcha.services.UserService;
 import dev.ned.config.util.JwtProperties;
 import dev.ned.config.util.JwtUtil;
 import dev.ned.models.User;

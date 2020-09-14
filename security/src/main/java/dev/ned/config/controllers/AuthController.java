@@ -1,9 +1,9 @@
 package dev.ned.config.controllers;
 
-import dev.ned.exceptions.ResourceNotFoundException;
 import dev.ned.config.models.ApiResponse;
 import dev.ned.config.payload.AuthenticationRequest;
 import dev.ned.config.services.AuthService;
+import dev.ned.exceptions.InvalidTokenException;
 import dev.ned.models.User;
 import dev.ned.repositories.UserRepository;
 import org.springframework.http.HttpStatus;
@@ -35,7 +35,7 @@ public class AuthController {
             user = userOptional.get();
             user.setPassword(null);
         } else {
-            throw new ResourceNotFoundException("User", "email", email);
+            throw new InvalidTokenException();
         }
         return ResponseEntity.status(HttpStatus.OK).body(user);
     }

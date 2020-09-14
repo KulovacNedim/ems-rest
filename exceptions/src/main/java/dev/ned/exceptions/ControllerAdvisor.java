@@ -28,6 +28,22 @@ import java.util.List;
 @ControllerAdvice
 public class ControllerAdvisor extends ResponseEntityExceptionHandler {
 
+    @ExceptionHandler(InvalidTokenException.class)
+    public ResponseEntity<Object> handleInvalidTokenException(
+            InvalidTokenException ex, WebRequest request) {
+        final String error = ex.getMessage();
+        final ApiError apiError = new ApiError(HttpStatus.UNAUTHORIZED, ex.getLocalizedMessage(), error);
+        return new ResponseEntity<Object>(apiError, new HttpHeaders(), apiError.getStatus());
+    }
+
+    @ExceptionHandler(EmailNotConfirmedException.class)
+    public ResponseEntity<Object> handleEmailNotConfirmedException(
+            EmailNotConfirmedException ex, WebRequest request) {
+        final String error = ex.getMessage();
+        final ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST, ex.getLocalizedMessage(), error);
+        return new ResponseEntity<Object>(apiError, new HttpHeaders(), apiError.getStatus());
+    }
+
     @ExceptionHandler(PasswordNotAcceptedException.class)
     public ResponseEntity<Object> handlePasswordNotAcceptedException(
             PasswordNotAcceptedException ex, WebRequest request) {

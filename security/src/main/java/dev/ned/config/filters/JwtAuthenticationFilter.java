@@ -3,9 +3,11 @@ package dev.ned.config.filters;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.ned.config.payload.AuthenticationRequest;
 import dev.ned.config.services.AuthService;
+import dev.ned.config.services.ExceptionService;
+import dev.ned.recaptcha.services.UserService;
 import dev.ned.config.util.JwtProperties;
 import dev.ned.config.util.JwtUtil;
-import dev.ned.exceptions.ReCaptchaFailedException;
+import dev.ned.models.User;
 import dev.ned.recaptcha.services.CaptchaService;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -19,6 +21,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Optional;
 
 public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
@@ -26,12 +29,14 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     private JwtUtil jwtUtil;
     private CaptchaService captchaService;
     private AuthService authService;
+    private UserService userService;
 
-    public JwtAuthenticationFilter(AuthenticationManager authenticationManager, JwtUtil jwtUtil, CaptchaService captchaService, AuthService authService) {
+    public JwtAuthenticationFilter(AuthenticationManager authenticationManager, JwtUtil jwtUtil, CaptchaService captchaService, AuthService authService, UserService userService) {
         this.authenticationManager = authenticationManager;
         this.jwtUtil = jwtUtil;
         this.captchaService = captchaService;
         this.authService = authService;
+        this.userService = userService;
     }
 
     @Override
@@ -44,11 +49,18 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         }
 
         boolean captchaVerified = captchaService.verify(requestPayload.getReCaptchaToken());
-        if (!captchaVerified) ReCaptchaFailedException.throwLoginReCaptchaException(request, response);
+        if (!captchaVerified) ExceptionService.throwLoginReCaptchaException(request, response);
 
         boolean passwordVerified = authService.verifyPassword(requestPayload.getPassword());
         if (!passwordVerified) {
-            AuthService.throwLoginPasswordException(request, response);
+            ExceptionService.throwLoginPasswordException(request, response);
+            return null;
+        }
+
+        Optional<User> userOptional = userService.getUserByEmail(requestPayload.getEmail());
+        boolean emailAccountVerified = userOptional.map(User::isEnabled).orElse(true);
+        if(!emailAccountVerified) {
+            ExceptionService.throwEmailAccountNotConfirmedException(request, response);
             return null;
         }
 

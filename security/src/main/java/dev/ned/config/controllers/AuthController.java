@@ -4,6 +4,7 @@ import dev.ned.config.models.ApiResponse;
 import dev.ned.config.payload.AuthenticationRequest;
 import dev.ned.config.services.AuthService;
 import dev.ned.exceptions.InvalidTokenException;
+import dev.ned.exceptions.ResourceNotFoundException;
 import dev.ned.models.User;
 import dev.ned.repositories.UserRepository;
 import org.springframework.http.HttpStatus;
@@ -29,13 +30,14 @@ public class AuthController {
     @GetMapping("/me")
     public ResponseEntity<User> getCurrentUser() {
         String email = SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString();
+        if (email.equals("anonymousUser")) throw new InvalidTokenException();
         Optional<User> userOptional = userRepository.findByEmail(email);
         User user;
         if (userOptional.isPresent()) {
             user = userOptional.get();
             user.setPassword(null);
         } else {
-            throw new InvalidTokenException();
+            throw new ResourceNotFoundException("User", "email", email);
         }
         return ResponseEntity.status(HttpStatus.OK).body(user);
     }

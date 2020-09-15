@@ -19,6 +19,8 @@ import org.springframework.stereotype.Service;
 import javax.validation.Valid;
 import java.util.*;
 
+import static dev.ned.config.services.PasswordValidator.*;
+
 @Service
 public class AuthService {
     private UserService userService;
@@ -41,16 +43,17 @@ public class AuthService {
         boolean captchaVerified = captchaService.verify(authPayload.getReCaptchaToken());
         if (!captchaVerified) throw new ReCaptchaFailedException();
 
-        boolean passwordVerified = verifyPassword(authPayload.getPassword());
-        if (!passwordVerified) throw new PasswordNotAcceptedException();
+        ValidationResult verificationResult = getVerificationResult(authPayload.getPassword());
+        if (verificationResult != ValidationResult.SUCCESS) throw new PasswordNotAcceptedException(verificationResult.toString());
 
         Optional<User> userOptional = userService.getUserByEmail(authPayload.getEmail());
         if (userOptional.isPresent()) throw new EmailExistsException(authPayload.getEmail());
 
+        // extract to helper method
         User user = new User();
         user.setEnabled(false);
         user.setLocked(false);
-        user.setEmail(authPayload.getEmail());
+        user.setEmail(authPayload.getEmail().toLowerCase());
         user.setPassword(passwordEncoder.encode(authPayload.getPassword()));
         user.setFirstName("first name");
         user.setLastName("last name");
@@ -75,10 +78,10 @@ public class AuthService {
         throw new EmailCouldNotBeSentException(user.getEmail());
     }
 
-    public boolean verifyPassword(String password) {
-        boolean hasNumbers = password.trim().matches("[a-zA-Z ]*\\d+.*");
-        boolean hasLetters = password.trim().matches(".*[a-z].*");
-        boolean isLongEnough = password.trim().length() > 7;
-        return hasNumbers && hasLetters && isLongEnough;
+    public ValidationResult getVerificationResult(String password) {
+        return isLongEnough(8)
+                .and((hasLetters()))
+                .and(hasNumbers())
+                .apply(password);
     }
 }

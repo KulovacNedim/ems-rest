@@ -1,7 +1,7 @@
 package dev.ned.exceptions;
 
 public class PasswordNotAcceptedException extends RuntimeException {
-    public PasswordNotAcceptedException() {
-        super("Invalid password format received.");
+    public PasswordNotAcceptedException(String msg) {
+        super(String.format("Invalid password received: %s", msg));
     }
 }

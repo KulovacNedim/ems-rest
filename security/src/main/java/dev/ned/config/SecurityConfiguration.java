@@ -5,10 +5,10 @@ import dev.ned.config.filters.JwtAuthenticationFilter;
 import dev.ned.config.filters.JwtAuthorizationFilter;
 import dev.ned.config.services.AuthService;
 import dev.ned.config.services.UserPrincipalDetailService;
-import dev.ned.recaptcha.services.UserService;
 import dev.ned.config.util.JwtUtil;
 import dev.ned.exceptions.UnauthorizedAccessHandler;
 import dev.ned.recaptcha.services.CaptchaService;
+import dev.ned.recaptcha.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -23,6 +23,12 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import java.util.Arrays;
+import java.util.Collections;
 
 @Configuration
 @EnableWebSecurity
@@ -64,17 +70,36 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .addFilter(jwtAuthorizationFilter())
                 .authorizeRequests()
                 .antMatchers("/api/auth/**").permitAll()
+                .antMatchers("/actuator/**", "/health", "/beans", "/favicon.ico").permitAll()
 
                 .antMatchers("/nice").hasRole("CEO")
                 .antMatchers("/users").hasRole("ADMIN")
                 .anyRequest().authenticated();
     }
 
+    @Bean
+    public CorsFilter getA(){
+        return new CorsFilter();
+    }
+
+    @Bean
+    CorsConfigurationSource corsConfigurationSource()
+    {
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowedOrigins(Arrays.asList("http://localhost:4200"));
+        configuration.setAllowedMethods(Arrays.asList("GET","POST","OPTIONS"));
+        configuration.setAllowedHeaders(Collections.singletonList("Access-Control-Allow-Origin"));
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
+    }
+
     @Override
     public void configure(WebSecurity webSecurity) {
         webSecurity
                 .ignoring()
-                .antMatchers(HttpMethod.POST, "/api/auth/signup");
+                .antMatchers(HttpMethod.POST, "/api/auth/**");
+
     }
 
     @Bean

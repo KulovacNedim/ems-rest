@@ -1,10 +1,7 @@
 package dev.ned.config.services;
 
 import dev.ned.config.payload.AuthenticationRequest;
-import dev.ned.exceptions.EmailCouldNotBeSentException;
-import dev.ned.exceptions.EmailExistsException;
-import dev.ned.exceptions.PasswordNotAcceptedException;
-import dev.ned.exceptions.ReCaptchaFailedException;
+import dev.ned.exceptions.*;
 import dev.ned.helpers.EmailTypeIdentifierEnum;
 import dev.ned.mailer.SendGridMailer;
 import dev.ned.models.EmailConfirm;
@@ -44,7 +41,8 @@ public class AuthService {
         if (!captchaVerified) throw new ReCaptchaFailedException();
 
         ValidationResult verificationResult = getVerificationResult(authPayload.getPassword());
-        if (verificationResult != ValidationResult.SUCCESS) throw new PasswordNotAcceptedException(verificationResult.toString());
+        if (verificationResult != ValidationResult.SUCCESS)
+            throw new PasswordNotAcceptedException(verificationResult.toString());
 
         Optional<User> userOptional = userService.getUserByEmail(authPayload.getEmail());
         if (userOptional.isPresent()) throw new EmailExistsException(authPayload.getEmail());
@@ -70,6 +68,7 @@ public class AuthService {
 
         Map<String, String> data = new HashMap<>();
         data.put("link", randomString);
+        data.put("email", user.getEmail());
         int status = sendGridMailer.sendPersonalizedEmail(user.getEmail(), data, EmailTypeIdentifierEnum.EMAIL_CONFIRMATION);
         if (199 < status && status < 300) return user.getEmail();
 
@@ -83,5 +82,35 @@ public class AuthService {
                 .and((hasLetters()))
                 .and(hasNumbers())
                 .apply(password);
+    }
+
+    public boolean confirmEmail(String email, String hash) throws Exception {
+        Optional<User> userOptional = userService.getUserByEmail(email);
+        if (userOptional.isEmpty()) throw new ResourceNotFoundException("User", "email", email);
+        User user = userOptional.get();
+
+        Optional<EmailConfirm> emailConfirmOptional = emailConfirmService.findOneByUserId(user.getId());
+        if (emailConfirmOptional.isEmpty()) {
+            throw new PasswordConfirmationException("Confirmation request does not exist for this user.");
+        }
+
+        boolean confirmationExpired = new Date(System.currentTimeMillis()).after(emailConfirmOptional.get().getExpirationDate());
+        if (confirmationExpired) {
+            emailConfirmService.deleteByUserId(user.getId());
+            userService.deleteUser(user);
+            throw new PasswordConfirmationException("Five minutes period for confirmation expired. Please register again");
+        }
+
+        boolean doesMatch = emailConfirmOptional.get().getRandomString().equals(hash);
+        if (!doesMatch)
+            throw new PasswordConfirmationException("Provided data does not match existing one. Please register again");
+
+        user.setEnabled(true);
+        User userSaved = userService.save(user);
+        if (userSaved != null) {
+            emailConfirmService.deleteByUserId(user.getId());
+            return true;
+        }
+        return false;
     }
 }

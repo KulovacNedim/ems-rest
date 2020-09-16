@@ -49,20 +49,22 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
             return null;
         }
 
-        boolean captchaVerified = captchaService.verify(requestPayload.getReCaptchaToken());
-        if (!captchaVerified) ExceptionService.throwLoginReCaptchaException(request, response);
+        if (request.getRequestURI().startsWith("/api/auth/login")) {
+            boolean captchaVerified = captchaService.verify(requestPayload.getReCaptchaToken());
+            if (!captchaVerified) ExceptionService.throwLoginReCaptchaException(request, response);
 
-        PasswordValidator.ValidationResult verificationResult = authService.getVerificationResult(requestPayload.getPassword());
-        if (verificationResult != PasswordValidator.ValidationResult.SUCCESS) {
-            ExceptionService.throwLoginPasswordException(request, response, verificationResult.toString());
-            return null;
-        }
+            PasswordValidator.ValidationResult verificationResult = authService.getVerificationResult(requestPayload.getPassword());
+            if (verificationResult != PasswordValidator.ValidationResult.SUCCESS) {
+                ExceptionService.throwLoginPasswordException(request, response, verificationResult.toString());
+                return null;
+            }
 
-        Optional<User> userOptional = userService.getUserByEmail(requestPayload.getEmail());
-        boolean emailAccountVerified = userOptional.map(User::isEnabled).orElse(true);
-        if(!emailAccountVerified) {
-            ExceptionService.throwEmailAccountNotConfirmedException(request, response);
-            return null;
+            Optional<User> userOptional = userService.getUserByEmail(requestPayload.getEmail());
+            boolean emailAccountVerified = userOptional.map(User::isEnabled).orElse(true);
+            if (!emailAccountVerified) {
+                ExceptionService.throwEmailAccountNotConfirmedException(request, response);
+                return null;
+            }
         }
 
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(

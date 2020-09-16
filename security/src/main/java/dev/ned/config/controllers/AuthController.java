@@ -47,4 +47,11 @@ public class AuthController {
         ApiResponse res = new ApiResponse(true, String.format("User account with email %s registered successfully", authService.signUp(authPayload)));
         return ResponseEntity.status(HttpStatus.OK).body(res);
     }
+
+    @PostMapping("/email-confirmation/{email}/{hash}")
+    public ResponseEntity<?> confirmEmail(@PathVariable("email") String email, @PathVariable("hash") String hash) throws Exception {
+        boolean success = authService.confirmEmail(email, hash);
+        ApiResponse res = new ApiResponse(success, "Email confirmed. Please log in.");
+        return ResponseEntity.status(HttpStatus.OK).body(res);
+    }
 }

@@ -32,8 +32,8 @@ public class ExceptionService {
         }
     }
 
-    public static void throwLoginPasswordException(HttpServletRequest request, HttpServletResponse response) {
-        PasswordNotAcceptedException ex = new PasswordNotAcceptedException();
+    public static void throwLoginPasswordException(HttpServletRequest request, HttpServletResponse response, String msg) {
+        PasswordNotAcceptedException ex = new PasswordNotAcceptedException(msg);
         response.setStatus(400);
         response.setContentType("application/json");
         try (

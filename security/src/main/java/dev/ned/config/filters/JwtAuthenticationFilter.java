@@ -4,11 +4,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.ned.config.payload.AuthenticationRequest;
 import dev.ned.config.services.AuthService;
 import dev.ned.config.services.ExceptionService;
-import dev.ned.recaptcha.services.UserService;
+import dev.ned.config.services.PasswordValidator;
 import dev.ned.config.util.JwtProperties;
 import dev.ned.config.util.JwtUtil;
 import dev.ned.models.User;
 import dev.ned.recaptcha.services.CaptchaService;
+import dev.ned.recaptcha.services.UserService;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -48,20 +49,22 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
             return null;
         }
 
-        boolean captchaVerified = captchaService.verify(requestPayload.getReCaptchaToken());
-        if (!captchaVerified) ExceptionService.throwLoginReCaptchaException(request, response);
+        if (request.getRequestURI().startsWith("/api/auth/login")) {
+            boolean captchaVerified = captchaService.verify(requestPayload.getReCaptchaToken());
+            if (!captchaVerified) ExceptionService.throwLoginReCaptchaException(request, response);
 
-        boolean passwordVerified = authService.verifyPassword(requestPayload.getPassword());
-        if (!passwordVerified) {
-            ExceptionService.throwLoginPasswordException(request, response);
-            return null;
-        }
+            PasswordValidator.ValidationResult verificationResult = authService.getVerificationResult(requestPayload.getPassword());
+            if (verificationResult != PasswordValidator.ValidationResult.SUCCESS) {
+                ExceptionService.throwLoginPasswordException(request, response, verificationResult.toString());
+                return null;
+            }
 
-        Optional<User> userOptional = userService.getUserByEmail(requestPayload.getEmail());
-        boolean emailAccountVerified = userOptional.map(User::isEnabled).orElse(true);
-        if(!emailAccountVerified) {
-            ExceptionService.throwEmailAccountNotConfirmedException(request, response);
-            return null;
+            Optional<User> userOptional = userService.getUserByEmail(requestPayload.getEmail());
+            boolean emailAccountVerified = userOptional.map(User::isEnabled).orElse(true);
+            if (!emailAccountVerified) {
+                ExceptionService.throwEmailAccountNotConfirmedException(request, response);
+                return null;
+            }
         }
 
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(

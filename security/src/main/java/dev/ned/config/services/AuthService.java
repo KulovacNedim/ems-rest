@@ -1,10 +1,7 @@
 package dev.ned.config.services;
 
 import dev.ned.config.payload.AuthenticationRequest;
-import dev.ned.exceptions.EmailCouldNotBeSentException;
-import dev.ned.exceptions.EmailExistsException;
-import dev.ned.exceptions.PasswordNotAcceptedException;
-import dev.ned.exceptions.ReCaptchaFailedException;
+import dev.ned.exceptions.*;
 import dev.ned.helpers.EmailTypeIdentifierEnum;
 import dev.ned.mailer.SendGridMailer;
 import dev.ned.models.EmailConfirm;
@@ -18,6 +15,8 @@ import org.springframework.stereotype.Service;
 
 import javax.validation.Valid;
 import java.util.*;
+
+import static dev.ned.config.services.PasswordValidator.*;
 
 @Service
 public class AuthService {
@@ -41,16 +40,18 @@ public class AuthService {
         boolean captchaVerified = captchaService.verify(authPayload.getReCaptchaToken());
         if (!captchaVerified) throw new ReCaptchaFailedException();
 
-        boolean passwordVerified = verifyPassword(authPayload.getPassword());
-        if (!passwordVerified) throw new PasswordNotAcceptedException();
+        ValidationResult verificationResult = getVerificationResult(authPayload.getPassword());
+        if (verificationResult != ValidationResult.SUCCESS)
+            throw new PasswordNotAcceptedException(verificationResult.toString());
 
         Optional<User> userOptional = userService.getUserByEmail(authPayload.getEmail());
         if (userOptional.isPresent()) throw new EmailExistsException(authPayload.getEmail());
 
+        // extract to helper method
         User user = new User();
         user.setEnabled(false);
         user.setLocked(false);
-        user.setEmail(authPayload.getEmail());
+        user.setEmail(authPayload.getEmail().toLowerCase());
         user.setPassword(passwordEncoder.encode(authPayload.getPassword()));
         user.setFirstName("first name");
         user.setLastName("last name");
@@ -67,6 +68,7 @@ public class AuthService {
 
         Map<String, String> data = new HashMap<>();
         data.put("link", randomString);
+        data.put("email", user.getEmail());
         int status = sendGridMailer.sendPersonalizedEmail(user.getEmail(), data, EmailTypeIdentifierEnum.EMAIL_CONFIRMATION);
         if (199 < status && status < 300) return user.getEmail();
 
@@ -75,10 +77,40 @@ public class AuthService {
         throw new EmailCouldNotBeSentException(user.getEmail());
     }
 
-    public boolean verifyPassword(String password) {
-        boolean hasNumbers = password.trim().matches("[a-zA-Z ]*\\d+.*");
-        boolean hasLetters = password.trim().matches(".*[a-z].*");
-        boolean isLongEnough = password.trim().length() > 7;
-        return hasNumbers && hasLetters && isLongEnough;
+    public ValidationResult getVerificationResult(String password) {
+        return isLongEnough(8)
+                .and((hasLetters()))
+                .and(hasNumbers())
+                .apply(password);
+    }
+
+    public boolean confirmEmail(String email, String hash) throws Exception {
+        Optional<User> userOptional = userService.getUserByEmail(email);
+        if (userOptional.isEmpty()) throw new ResourceNotFoundException("User", "email", email);
+        User user = userOptional.get();
+
+        Optional<EmailConfirm> emailConfirmOptional = emailConfirmService.findOneByUserId(user.getId());
+        if (emailConfirmOptional.isEmpty()) {
+            throw new PasswordConfirmationException("Confirmation request does not exist for this user.");
+        }
+
+        boolean confirmationExpired = new Date(System.currentTimeMillis()).after(emailConfirmOptional.get().getExpirationDate());
+        if (confirmationExpired) {
+            emailConfirmService.deleteByUserId(user.getId());
+            userService.deleteUser(user);
+            throw new PasswordConfirmationException("Five minutes period for confirmation expired. Please register again");
+        }
+
+        boolean doesMatch = emailConfirmOptional.get().getRandomString().equals(hash);
+        if (!doesMatch)
+            throw new PasswordConfirmationException("Provided data does not match existing one. Please register again");
+
+        user.setEnabled(true);
+        User userSaved = userService.save(user);
+        if (userSaved != null) {
+            emailConfirmService.deleteByUserId(user.getId());
+            return true;
+        }
+        return false;
     }
 }

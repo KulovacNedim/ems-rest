@@ -98,7 +98,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     public void configure(WebSecurity webSecurity) {
         webSecurity
                 .ignoring()
-                .antMatchers(HttpMethod.POST, "/api/auth/**");
+                .antMatchers(HttpMethod.POST, "/api/auth/signup")
+                .antMatchers(HttpMethod.POST, "/api/auth/me");
 
     }
 

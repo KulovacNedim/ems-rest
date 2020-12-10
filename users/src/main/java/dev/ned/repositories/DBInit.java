@@ -24,7 +24,7 @@ public class DBInit implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
         User admin = new User();
-        admin.setEnabled(true);
+        admin.setEnabled(false);
         admin.setLocked(false);
         admin.setEmail("admin@gmail.com");
         admin.setPassword(passwordEncoder.encode("adm12345"));

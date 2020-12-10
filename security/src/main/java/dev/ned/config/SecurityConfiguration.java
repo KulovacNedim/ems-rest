@@ -9,6 +9,7 @@ import dev.ned.config.util.JwtUtil;
 import dev.ned.exceptions.UnauthorizedAccessHandler;
 import dev.ned.recaptcha.services.CaptchaService;
 import dev.ned.recaptcha.services.UserService;
+import dev.ned.services.UserNotEnabledReasonService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -45,6 +46,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     AuthService authService;
     @Autowired
     private UnauthorizedAccessHandler unauthorizedAccessHandler;
+    @Autowired
+    private UserNotEnabledReasonService userNotEnabledReasonService;
 
     private UserPrincipalDetailService userPrincipalDetailService;
 
@@ -118,7 +121,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     }
 
     private JwtAuthenticationFilter jwtAuthenticationFilter() throws Exception {
-        JwtAuthenticationFilter jwtAuthenticationFilter = new JwtAuthenticationFilter(authenticationManager(), jwtUtil, captchaService, authService, userService);
+        JwtAuthenticationFilter jwtAuthenticationFilter = new JwtAuthenticationFilter(authenticationManager(), jwtUtil, captchaService, authService, userService, userNotEnabledReasonService);
         jwtAuthenticationFilter.setFilterProcessesUrl("/api/auth/login");
         return jwtAuthenticationFilter;
     }

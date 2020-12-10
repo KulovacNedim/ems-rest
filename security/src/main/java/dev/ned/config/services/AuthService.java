@@ -5,16 +5,22 @@ import dev.ned.exceptions.*;
 import dev.ned.helpers.EmailTypeIdentifierEnum;
 import dev.ned.mailer.SendGridMailer;
 import dev.ned.models.EmailConfirm;
+import dev.ned.models.NotEnabledReason;
 import dev.ned.models.User;
+import dev.ned.models.UserNotEnabledReasons;
 import dev.ned.recaptcha.services.CaptchaService;
 import dev.ned.recaptcha.services.UserService;
 import dev.ned.services.EmailConfirmService;
+import dev.ned.services.UserNotEnabledReasonService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.DiscriminatorValue;
 import javax.validation.Valid;
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static dev.ned.config.services.PasswordValidator.*;
 
@@ -29,6 +35,9 @@ public class AuthService {
 
     @Autowired
     CaptchaService captchaService;
+
+    @Autowired
+    UserNotEnabledReasonService userNotEnabledReasonService;
 
     public AuthService(UserService userService, PasswordEncoder passwordEncoder, EmailConfirmService emailConfirmService) {
         this.userService = userService;
@@ -70,7 +79,10 @@ public class AuthService {
         data.put("link", randomString);
         data.put("email", user.getEmail());
         int status = sendGridMailer.sendPersonalizedEmail(user.getEmail(), data, EmailTypeIdentifierEnum.EMAIL_CONFIRMATION);
-        if (199 < status && status < 300) return user.getEmail();
+        if (199 < status && status < 300) {
+            userNotEnabledReasonService.save(new NotEnabledReason(UserNotEnabledReasons.EMAIL_NOT_VERIFIED, new Date(), savedUser, true));
+            return user.getEmail();
+        }
 
         // set notification that new registration is made
 
@@ -108,6 +120,15 @@ public class AuthService {
         user.setEnabled(true);
         User userSaved = userService.save(user);
         if (userSaved != null) {
+            userNotEnabledReasonService.findAllNotEnabledReasonsForUser(userSaved)
+                .stream()
+                .filter(r -> r.isValid() == true && r.getReason().equals(UserNotEnabledReasons.EMAIL_NOT_VERIFIED))
+                .findFirst()
+                .ifPresent(reason -> {
+                    reason.setValid(false);
+                    userNotEnabledReasonService.updateNotEnabledReason(reason);
+                });
+
             emailConfirmService.deleteByUserId(user.getId());
             return true;
         }

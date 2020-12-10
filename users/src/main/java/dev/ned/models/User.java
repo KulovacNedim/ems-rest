@@ -32,6 +32,12 @@ public class User {
     @Column(nullable = false)
     private boolean isLocked;
 
+    @OneToMany(mappedBy = "user", cascade = {
+            CascadeType.PERSIST, CascadeType.MERGE,
+            CascadeType.DETACH, CascadeType.REFRESH
+    })
+    List<NotEnabledReason> notEnabledReasons;
+
     @ManyToMany(fetch = FetchType.EAGER, cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.DETACH, CascadeType.REFRESH})
     @JoinTable(name = "user_roles",
             joinColumns = @JoinColumn(name = "user_id"),
@@ -46,17 +52,6 @@ public class User {
     private List<Permission> permissions;
 
     public User() {
-    }
-
-    public User(String firstName, String lastName, String email, String password, boolean isEnabled, boolean isLocked, List<Role> roles, List<Permission> permissions) {
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.email = email;
-        this.password = password;
-        this.isEnabled = isEnabled;
-        this.isLocked = isLocked;
-        this.roles = roles;
-        this.permissions = permissions;
     }
 
     // adding Role to User's roles
@@ -145,6 +140,14 @@ public class User {
 
     public void setPermissions(List<Permission> permissions) {
         this.permissions = permissions;
+    }
+
+    public List<NotEnabledReason> getNotEnabledReasons() {
+        return notEnabledReasons;
+    }
+
+    public void setNotEnabledReasons(List<NotEnabledReason> notEnabledReasons) {
+        this.notEnabledReasons = notEnabledReasons;
     }
 
     @Override

@@ -52,6 +52,14 @@ public class ControllerAdvisor extends ResponseEntityExceptionHandler {
         return new ResponseEntity<Object>(apiError, new HttpHeaders(), apiError.getStatus());
     }
 
+    @ExceptionHandler(AccessRestrictedException.class)
+    public ResponseEntity<Object> handleAccessRestrictedException(
+            AccessRestrictedException ex, WebRequest request) {
+        final String error = ex.getMessage();
+        final ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST, ex.getLocalizedMessage(), error);
+        return new ResponseEntity<Object>(apiError, new HttpHeaders(), apiError.getStatus());
+    }
+
     @ExceptionHandler(PasswordNotAcceptedException.class)
     public ResponseEntity<Object> handlePasswordNotAcceptedException(
             PasswordNotAcceptedException ex, WebRequest request) {

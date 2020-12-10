@@ -7,9 +7,12 @@ import dev.ned.config.services.ExceptionService;
 import dev.ned.config.services.PasswordValidator;
 import dev.ned.config.util.JwtProperties;
 import dev.ned.config.util.JwtUtil;
+import dev.ned.models.NotEnabledReason;
 import dev.ned.models.User;
+import dev.ned.models.UserNotEnabledReasons;
 import dev.ned.recaptcha.services.CaptchaService;
 import dev.ned.recaptcha.services.UserService;
+import dev.ned.services.UserNotEnabledReasonService;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -32,12 +35,16 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     private AuthService authService;
     private UserService userService;
 
-    public JwtAuthenticationFilter(AuthenticationManager authenticationManager, JwtUtil jwtUtil, CaptchaService captchaService, AuthService authService, UserService userService) {
+
+    private UserNotEnabledReasonService userNotEnabledReasonService;
+
+    public JwtAuthenticationFilter(AuthenticationManager authenticationManager, JwtUtil jwtUtil, CaptchaService captchaService, AuthService authService, UserService userService, UserNotEnabledReasonService userNotEnabledReasonService) {
         this.authenticationManager = authenticationManager;
         this.jwtUtil = jwtUtil;
         this.captchaService = captchaService;
         this.authService = authService;
         this.userService = userService;
+        this.userNotEnabledReasonService = userNotEnabledReasonService;
     }
 
     @Override
@@ -60,10 +67,22 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
             }
 
             Optional<User> userOptional = userService.getUserByEmail(requestPayload.getEmail());
-            boolean emailAccountVerified = userOptional.map(User::isEnabled).orElse(true);
-            if (!emailAccountVerified) {
-                ExceptionService.throwEmailAccountNotConfirmedException(request, response);
+            if (userOptional.isPresent() && userOptional.get().isLocked()) {
+                ExceptionService.throwAccessRestrictedException(request, response);
                 return null;
+            }
+
+            boolean isEnabled = userOptional.map(User::isEnabled).orElse(true);
+            if (!isEnabled) {
+                Optional<NotEnabledReason> reasonOptional = userNotEnabledReasonService.findAllNotEnabledReasonsForUser(userOptional.get())
+                        .stream()
+                        .filter(r -> r.isValid() == true && r.getReason().equals(UserNotEnabledReasons.EMAIL_NOT_VERIFIED))
+                        .findFirst();
+
+                if (reasonOptional.isPresent()) {
+                    ExceptionService.throwEmailAccountNotConfirmedException(request, response);
+                    return null; // return statement needed to stop fall throw security chain
+                }
             }
         }
 

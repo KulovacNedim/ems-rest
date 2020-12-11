@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -31,15 +32,13 @@ public class AuthController {
     public ResponseEntity<User> getCurrentUser() {
         String email = SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString();
         if (email.equals("anonymousUser")) throw new InvalidTokenException();
-        Optional<User> userOptional = userRepository.findByEmail(email);
-        User user;
-        if (userOptional.isPresent()) {
-            user = userOptional.get();
-            user.setPassword(null);
-        } else {
-            throw new ResourceNotFoundException("User", "email", email);
-        }
-        return ResponseEntity.status(HttpStatus.OK).body(user);
+        return userRepository.findByEmail(email)
+                .map(user -> {
+                    user.setPassword(null);
+                    user.setNotEnabledReasons(user.getNotEnabledReasons().stream().filter(r -> r.isValid()).collect(Collectors.toList()));
+                    return ResponseEntity.status(HttpStatus.OK).body(user);
+                })
+                .orElseThrow(() -> new ResourceNotFoundException("User", "email", email));
     }
 
     @PostMapping("/signup")

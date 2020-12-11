@@ -8,6 +8,7 @@ import java.util.Date;
 import java.util.Objects;
 
 @Entity
+@JsonIgnoreProperties(value = "user", allowSetters = true)
 public class NotEnabledReason {
 
     @Id
@@ -26,7 +27,6 @@ public class NotEnabledReason {
             CascadeType.PERSIST, CascadeType.MERGE,
             CascadeType.DETACH, CascadeType.REFRESH})
     @JoinColumn(name = "user_id")
-    @JsonIgnoreProperties(value = "notEnabledReasons", allowSetters = true)
     @NotNull
     private User user;
 

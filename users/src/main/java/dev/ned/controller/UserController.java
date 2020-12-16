@@ -1,17 +1,24 @@
 package dev.ned.controller;
 
-import dev.ned.models.role.RoleRequestPayload;
+import dev.ned.models.payloads.RoleRequestPayload;
+import dev.ned.services.RoleRequestPayloadService;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
+import javax.validation.Valid;
 
 @RestController
 @RequestMapping("/api/role-request")
-//@CrossOrigin("*")
+@Validated
 public class UserController {
+    private RoleRequestPayloadService service;
+
+    public UserController(RoleRequestPayloadService service) {
+        this.service = service;
+    }
 
     @PostMapping
-    public void processRoleRequest(@RequestBody RoleRequestPayload roleRequestPayload) {
-
-        System.out.println(roleRequestPayload.toString());
-
+    public void processRoleRequest(@Valid @RequestBody RoleRequestPayload roleRequestPayload) {
+        service.saveRoleRequestPayload(roleRequestPayload);
     }
 }

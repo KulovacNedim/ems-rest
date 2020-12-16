@@ -1,19 +1,21 @@
-package dev.ned.models.role;
+package dev.ned.models.payloads;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
+import java.util.Objects;
 
 @Entity
 public class PhonePayload {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @NotBlank(message = "Phone number is mandatory property")
     private String phoneNumber;
+    @NotBlank(message = "Phone owner is mandatory property")
     private String phoneOwner;
+    @NotBlank(message = "Phone type is mandatory property")
     private String phoneType;
-
-    @ManyToOne(cascade = {
-            CascadeType.PERSIST, CascadeType.MERGE,
-            CascadeType.DETACH, CascadeType.REFRESH})
+    @ManyToOne
     @JoinColumn(name = "parent_data_id")
     private ParentDataPayload parentDataPayload;
 
@@ -58,5 +60,22 @@ public class PhonePayload {
 
     public void setParentDataPayload(ParentDataPayload parentDataPayload) {
         this.parentDataPayload = parentDataPayload;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        PhonePayload that = (PhonePayload) o;
+        return Objects.equals(id, that.id) &&
+                Objects.equals(phoneNumber, that.phoneNumber) &&
+                Objects.equals(phoneOwner, that.phoneOwner) &&
+                Objects.equals(phoneType, that.phoneType) &&
+                Objects.equals(parentDataPayload, that.parentDataPayload);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, phoneNumber, phoneOwner, phoneType, parentDataPayload);
     }
 }

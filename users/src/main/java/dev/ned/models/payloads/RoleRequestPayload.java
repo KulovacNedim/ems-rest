@@ -1,6 +1,7 @@
-package dev.ned.models.role;
+package dev.ned.models.payloads;
 
 import javax.persistence.*;
+import java.util.Objects;
 
 @Entity
 public class RoleRequestPayload {
@@ -43,6 +44,21 @@ public class RoleRequestPayload {
 
     public void setStudentData(StudentDataPayload studentData) {
         this.studentData = studentData;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        RoleRequestPayload that = (RoleRequestPayload) o;
+        return Objects.equals(id, that.id) &&
+                Objects.equals(parentData, that.parentData) &&
+                Objects.equals(studentData, that.studentData);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, parentData, studentData);
     }
 }
 

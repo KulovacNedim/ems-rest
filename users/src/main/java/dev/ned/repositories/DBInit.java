@@ -1,13 +1,14 @@
 package dev.ned.repositories;
 
-import dev.ned.models.Permission;
-import dev.ned.models.Role;
-import dev.ned.models.User;
+import dev.ned.models.*;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import javax.validation.constraints.NotNull;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -44,6 +45,9 @@ public class DBInit implements CommandLineRunner {
         teacher.setFirstName("teacher name");
         teacher.setLastName("last name");
         teacher.addRole(new Role("TEACHER"));
+        NotEnabledReason reason = new NotEnabledReason(UserNotEnabledReasons.MISSING_ROLE, new Date(), teacher, true);
+        teacher.setNotEnabledReasons(new ArrayList<>());
+        teacher.getNotEnabledReasons().add(reason);
         List<User> users = Arrays.asList(admin, teacher);
 
         this.userRepository.saveAll(users);

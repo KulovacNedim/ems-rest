@@ -117,7 +117,7 @@ public class AuthService {
         if (!doesMatch)
             throw new PasswordConfirmationException("Provided data does not match existing one. Please register again");
 
-        user.setEnabled(true);
+//        user.setEnabled(true);
         user.getNotEnabledReasons().add(new NotEnabledReason(UserNotEnabledReasons.MISSING_ROLE, new Date(), user, true));
         User userSaved = userService.save(user);
         if (userSaved != null) {

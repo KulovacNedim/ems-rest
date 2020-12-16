@@ -77,6 +77,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
                 .antMatchers("/nice").hasRole("CEO")
                 .antMatchers("/users").hasRole("ADMIN")
+
+                .antMatchers("/api/role-request/**").authenticated()
                 .anyRequest().authenticated();
     }
 

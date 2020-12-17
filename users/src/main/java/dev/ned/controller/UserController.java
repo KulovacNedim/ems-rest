@@ -17,7 +17,7 @@ public class UserController {
         this.service = service;
     }
 
-    @PostMapping
+    @PostMapping(consumes = {"application/json"})
     public void processRoleRequest(@Valid @RequestBody RoleRequestPayload roleRequestPayload) {
         service.saveRoleRequestPayload(roleRequestPayload);
     }

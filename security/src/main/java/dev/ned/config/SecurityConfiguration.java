@@ -67,8 +67,11 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .authorizeRequests()
                 .antMatchers("/api/auth/**").permitAll()
                 .antMatchers("/actuator/**", "/health", "/beans", "/favicon.ico").permitAll()
+                .antMatchers("/wsocket").permitAll()
+
                 .antMatchers("/nice").hasRole("CEO")
                 .antMatchers("/users").hasRole("ADMIN")
+
                 .anyRequest().authenticated();
     }
 

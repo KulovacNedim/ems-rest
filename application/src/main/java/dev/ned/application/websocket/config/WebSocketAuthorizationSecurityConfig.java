@@ -8,8 +8,7 @@ import org.springframework.security.config.annotation.web.socket.AbstractSecurit
 public class WebSocketAuthorizationSecurityConfig extends AbstractSecurityWebSocketMessageBrokerConfigurer {
     @Override
     protected void configureInbound(final MessageSecurityMetadataSourceRegistry messages) {
-        // You can customize your authorization mapping here.
-        messages.simpDestMatchers("/secured/**").authenticated()
+        messages.simpDestMatchers("/topic/**").hasAnyRole("ADMIN", "TEACHER")
                 .anyMessage().authenticated();
     }
 

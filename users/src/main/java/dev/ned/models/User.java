@@ -1,5 +1,6 @@
 package dev.ned.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
 
@@ -9,6 +10,7 @@ import java.util.List;
 import java.util.Objects;
 
 @Entity
+@JsonIgnoreProperties(value = "notificationDTO", allowSetters = true)
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -50,6 +52,12 @@ public class User {
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "permission_id"))
     private List<Permission> permissions;
+
+    @OneToMany(mappedBy = "userToNotify", cascade = {
+            CascadeType.PERSIST, CascadeType.MERGE,
+            CascadeType.DETACH, CascadeType.REFRESH
+    })
+    private List<Notification> notification;
 
     public User() {
     }
@@ -150,6 +158,14 @@ public class User {
         this.notEnabledReasons = notEnabledReasons;
     }
 
+    public List<Notification> getNotificationDTO() {
+        return notification;
+    }
+
+    public void setNotificationDTO(List<Notification> notification) {
+        this.notification = notification;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -162,12 +178,14 @@ public class User {
                 Objects.equals(lastName, user.lastName) &&
                 Objects.equals(email, user.email) &&
                 Objects.equals(password, user.password) &&
+                Objects.equals(notEnabledReasons, user.notEnabledReasons) &&
                 Objects.equals(roles, user.roles) &&
-                Objects.equals(permissions, user.permissions);
+                Objects.equals(permissions, user.permissions) &&
+                Objects.equals(notification, user.notification);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, firstName, lastName, email, password, isEnabled, isLocked, roles, permissions);
+        return Objects.hash(id, firstName, lastName, email, password, isEnabled, isLocked, notEnabledReasons, roles, permissions, notification);
     }
 }

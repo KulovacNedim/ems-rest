@@ -1,13 +1,16 @@
 package dev.ned.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import org.hibernate.annotations.LazyCollection;
+import org.hibernate.annotations.LazyCollectionOption;
 
 import javax.persistence.*;
 import java.util.List;
 import java.util.Objects;
 
 @Entity
-@JsonIgnoreProperties(value = "users", allowSetters = true)
+//@JsonIgnoreProperties(value = "users", allowSetters = true)
+@JsonIgnoreProperties({"users", "notificationDTOs"})
 public class Role {
 
     @Id
@@ -22,6 +25,13 @@ public class Role {
             joinColumns = @JoinColumn(name = "role_id"),
             inverseJoinColumns = @JoinColumn(name = "user_id"))
     private List<User> users;
+
+    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.DETACH, CascadeType.REFRESH})
+    @LazyCollection(LazyCollectionOption.FALSE)
+    @JoinTable(name = "notifications_roles",
+            joinColumns = @JoinColumn(name = "role_id"),
+            inverseJoinColumns = @JoinColumn(name = "notification_id"))
+    private List<Notification> notifications;
 
     public Role() {
     }
@@ -54,6 +64,14 @@ public class Role {
         this.users = users;
     }
 
+    public List<Notification> getNotificationDTOs() {
+        return notifications;
+    }
+
+    public void setNotificationDTOs(List<Notification> notifications) {
+        this.notifications = notifications;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -61,11 +79,12 @@ public class Role {
         Role role = (Role) o;
         return Objects.equals(role_id, role.role_id) &&
                 Objects.equals(roleName, role.roleName) &&
-                Objects.equals(users, role.users);
+                Objects.equals(users, role.users) &&
+                Objects.equals(notifications, role.notifications);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(role_id, roleName, users);
+        return Objects.hash(role_id, roleName, users, notifications);
     }
 }

@@ -13,15 +13,14 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
 
-    private UserRepository userRepository;
-    private AuthService authService;
+    private final UserRepository userRepository;
+    private final AuthService authService;
 
     public AuthController(UserRepository userRepository, AuthService authService) {
         this.userRepository = userRepository;

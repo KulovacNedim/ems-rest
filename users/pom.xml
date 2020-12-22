@@ -10,5 +10,13 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>users</artifactId>
+    <dependencies>
+        <dependency>
+            <groupId>dev.ned</groupId>
+            <artifactId>exceptions</artifactId>
+            <version>2.2.1.RELEASE</version>
+            <scope>compile</scope>
+        </dependency>
+    </dependencies>
 
 </project>

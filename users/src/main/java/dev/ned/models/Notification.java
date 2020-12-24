@@ -34,6 +34,7 @@ public class Notification {
     @CollectionTable(name = "notification_args", joinColumns = @JoinColumn(name = "arg_id"))
     Map<String, String> args = new HashMap<>();
 
+    private String taskCreatorName;
     private Date createdAt;
     private Date resolvedAt;
 
@@ -92,6 +93,14 @@ public class Notification {
         this.args = args;
     }
 
+    public String getTaskCreatorName() {
+        return taskCreatorName;
+    }
+
+    public void setTaskCreatorName(String taskCreatorName) {
+        this.taskCreatorName = taskCreatorName;
+    }
+
     public Date getCreatedAt() {
         return createdAt;
     }
@@ -119,12 +128,13 @@ public class Notification {
                 Objects.equals(message, that.message) &&
                 type == that.type &&
                 Objects.equals(args, that.args) &&
+                Objects.equals(taskCreatorName, that.taskCreatorName) &&
                 Objects.equals(createdAt, that.createdAt) &&
                 Objects.equals(resolvedAt, that.resolvedAt);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, rolesToNotify, userToNotify, message, type, args, createdAt, resolvedAt);
+        return Objects.hash(id, rolesToNotify, userToNotify, message, type, args, taskCreatorName, createdAt, resolvedAt);
     }
 }

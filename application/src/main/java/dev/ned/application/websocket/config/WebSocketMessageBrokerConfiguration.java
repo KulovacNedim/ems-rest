@@ -40,5 +40,4 @@ public class WebSocketMessageBrokerConfiguration implements WebSocketMessageBrok
         registration.interceptors(authChannelInterceptorAdapter);
     }
 
-
 }

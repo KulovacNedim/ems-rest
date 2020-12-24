@@ -1,5 +1,6 @@
 package dev.ned.application.websocket;
 
+import org.springframework.messaging.handler.annotation.MessageExceptionHandler;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.handler.annotation.SendTo;
@@ -14,6 +15,7 @@ public class TestService {
         System.out.println(message.toString());
         return new Greeting("Malik", 25.6);
     }
+
 }
 
 class HelloMessage {

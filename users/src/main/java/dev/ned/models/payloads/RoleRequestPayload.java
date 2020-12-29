@@ -1,6 +1,8 @@
 package dev.ned.models.payloads;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
+import java.util.List;
 import java.util.Objects;
 
 @Entity
@@ -8,16 +10,15 @@ public class RoleRequestPayload {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     @OneToOne(cascade = {
             CascadeType.PERSIST, CascadeType.MERGE,
             CascadeType.DETACH, CascadeType.REFRESH})
     @JoinColumn(name = "parent_data_id")
     private ParentDataPayload parentData;
-    @OneToOne(cascade = {
-            CascadeType.PERSIST, CascadeType.MERGE,
-            CascadeType.DETACH, CascadeType.REFRESH})
-    @JoinColumn(name = "student_data_id")
-    private StudentDataPayload studentData;
+
+    @OneToMany(mappedBy = "roleRequestPayload", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    private List<StudentDataPayload> studentData;
 
     public RoleRequestPayload() {
     }
@@ -38,22 +39,23 @@ public class RoleRequestPayload {
         this.parentData = parentData;
     }
 
-    public StudentDataPayload getStudentData() {
+    public List<StudentDataPayload> getStudentData() {
         return studentData;
     }
 
-    public void setStudentData(StudentDataPayload studentData) {
-        this.studentData = studentData;
+    public void setStudentData(List<StudentDataPayload> studentDataPayloads) {
+        this.studentData = studentDataPayloads;
+        studentDataPayloads.forEach(entity -> entity.setRoleRequestPayload(this));
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        RoleRequestPayload that = (RoleRequestPayload) o;
-        return Objects.equals(id, that.id) &&
-                Objects.equals(parentData, that.parentData) &&
-                Objects.equals(studentData, that.studentData);
+        RoleRequestPayload payload = (RoleRequestPayload) o;
+        return Objects.equals(id, payload.id) &&
+                Objects.equals(parentData, payload.parentData) &&
+                Objects.equals(studentData, payload.studentData);
     }
 
     @Override

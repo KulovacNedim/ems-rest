@@ -78,7 +78,7 @@ public class DBInit implements CommandLineRunner {
         studentDataPayload.setLastName("Kulovac");
         studentDataPayload.setCitizenID("2508");
         studentDataPayload.setDob(new Date());
-        payload.setStudentData(studentDataPayload);
+        payload.setStudentData(Collections.singletonList(studentDataPayload));
 
         Notification notification = new Notification();
         notification.setMessage("Request for role setup");
@@ -87,8 +87,8 @@ public class DBInit implements CommandLineRunner {
         notification.addArg("payload_id", String.valueOf(payload.getId()));
         notification.addArg("parent_first_name", payload.getParentData().getFirstName());
         notification.addArg("parent_last_name", payload.getParentData().getLastName());
-        notification.addArg("student_first_name", payload.getStudentData().getFirstName());
-        notification.addArg("student_last_name", payload.getStudentData().getLastName());
+        notification.addArg("student_first_name", payload.getStudentData().get(0).getFirstName());
+        notification.addArg("student_last_name", payload.getStudentData().get(0).getLastName());
 
         notificationRepository.save(notification);
 
@@ -123,7 +123,7 @@ public class DBInit implements CommandLineRunner {
         studentDataPayload2.setLastName("Kulovac");
         studentDataPayload2.setCitizenID("2508");
         studentDataPayload2.setDob(new Date());
-        payload2.setStudentData(studentDataPayload2);
+        payload2.setStudentData(Collections.singletonList(studentDataPayload2));
 
         Notification notification2 = new Notification();
         notification2.setMessage("Request for role setup");
@@ -132,8 +132,8 @@ public class DBInit implements CommandLineRunner {
         notification2.addArg("payload_id", String.valueOf(payload2.getId()));
         notification2.addArg("parent_first_name", payload2.getParentData().getFirstName());
         notification2.addArg("parent_last_name", payload2.getParentData().getLastName());
-        notification2.addArg("student_first_name", payload2.getStudentData().getFirstName());
-        notification2.addArg("student_last_name", payload2.getStudentData().getLastName());
+        notification2.addArg("student_first_name", payload2.getStudentData().get(0).getFirstName());
+        notification2.addArg("student_last_name", payload2.getStudentData().get(0).getLastName());
 
         notificationRepository.save(notification2);
 
@@ -166,7 +166,7 @@ public class DBInit implements CommandLineRunner {
         studentDataPayload3.setLastName("Kulovac");
         studentDataPayload3.setCitizenID("2508");
         studentDataPayload3.setDob(new Date());
-        payload3.setStudentData(studentDataPayload3);
+        payload3.setStudentData(Collections.singletonList(studentDataPayload3));
 
         Notification notification3 = new Notification();
         notification3.setMessage("Request for role setup");
@@ -175,8 +175,8 @@ public class DBInit implements CommandLineRunner {
         notification3.addArg("payload_id", String.valueOf(payload2.getId()));
         notification3.addArg("parent_first_name", payload2.getParentData().getFirstName());
         notification3.addArg("parent_last_name", payload2.getParentData().getLastName());
-        notification3.addArg("student_first_name", payload2.getStudentData().getFirstName());
-        notification3.addArg("student_last_name", payload2.getStudentData().getLastName());
+        notification3.addArg("student_first_name", payload2.getStudentData().get(0).getFirstName());
+        notification3.addArg("student_last_name", payload2.getStudentData().get(0).getLastName());
         notification3.setTaskCreatorName("Administrator");
 
         notificationRepository.save(notification3);

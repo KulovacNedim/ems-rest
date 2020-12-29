@@ -30,7 +30,7 @@ public class ParentDataPayload {
     private String requestedRole;
     @NotBlank(message = "Email is mandatory property")
     private String email;
-    @OneToMany(mappedBy="parentDataPayload", fetch=FetchType.EAGER, cascade=CascadeType.ALL)
+    @OneToMany(mappedBy="parentDataPayload", fetch=FetchType.LAZY, cascade=CascadeType.ALL)
     @NotNull(message = "At least one phone is mandatory")
     public List<PhonePayload> phones;
 

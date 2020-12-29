@@ -13,6 +13,7 @@ import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Service
 public class UserRoleSetupService {
@@ -49,8 +50,14 @@ public class UserRoleSetupService {
         notification.addArg("payload_id", String.valueOf(payload.getId()));
         notification.addArg("parent_first_name", payload.getParentData().getFirstName());
         notification.addArg("parent_last_name", payload.getParentData().getLastName());
-        notification.addArg("student_first_name", payload.getStudentData().getFirstName());
-        notification.addArg("student_last_name", payload.getStudentData().getLastName());
+        AtomicInteger i = new AtomicInteger();
+        payload.getStudentData().forEach(entity -> {
+            notification.addArg(i + "_student_first_name", entity.getFirstName());
+            notification.addArg(i + "_student_last_name", entity.getLastName());
+            i.getAndIncrement();
+        });
+        notification.addArg("number_of_students", String.valueOf(payload.getStudentData().size()));
+
         for (Role role : rolesToNotify) {
             notification.getRolesToNotify().add(role);
         }

@@ -1,9 +1,6 @@
 package dev.ned.models.payloads;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.util.Date;
@@ -22,6 +19,9 @@ public class StudentDataPayload {
     public String citizenID;
     @NotNull
     public Date dob;
+    @ManyToOne
+    @JoinColumn(name = "role_request_id")
+    private RoleRequestPayload roleRequestPayload;
 
     public StudentDataPayload() {
     }
@@ -66,6 +66,14 @@ public class StudentDataPayload {
         this.dob = dob;
     }
 
+    public RoleRequestPayload getRoleRequestPayload() {
+        return roleRequestPayload;
+    }
+
+    public void setRoleRequestPayload(RoleRequestPayload roleRequestPayload) {
+        this.roleRequestPayload = roleRequestPayload;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -75,11 +83,12 @@ public class StudentDataPayload {
                 Objects.equals(firstName, that.firstName) &&
                 Objects.equals(lastName, that.lastName) &&
                 Objects.equals(citizenID, that.citizenID) &&
-                Objects.equals(dob, that.dob);
+                Objects.equals(dob, that.dob) &&
+                Objects.equals(roleRequestPayload, that.roleRequestPayload);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, firstName, lastName, citizenID, dob);
+        return Objects.hash(id, firstName, lastName, citizenID, dob, roleRequestPayload);
     }
 }

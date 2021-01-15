@@ -78,6 +78,14 @@ public class User {
         permissions.add(permission);
     }
 
+    // adding Notification to User's Notifications
+    public void addNotification(Notification notification) {
+        if (this.notification == null) {
+            this.notification = new ArrayList<>();
+        }
+        this.notification.add(notification);
+    }
+
     public Long getId() {
         return id;
     }

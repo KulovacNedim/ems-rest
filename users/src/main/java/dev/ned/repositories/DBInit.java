@@ -187,6 +187,21 @@ public class DBInit implements CommandLineRunner {
             notification3.getRolesToNotify().add(role);
         }
         notificationRepository.save(notification3);
+
+        Notification notification4 = new Notification();
+        notification4.setMessage("Test for task");
+        notification4.setType(NotificationType.ROLE_SETUP_REQUEST);
+        notification4.setCreatedAt(new Date());
+        notification4.addArg("arg_01", "arg_01");
+        notification4.addArg("arg_02", "arg_02");
+        notification4.setTaskCreatorName("System user");
+
+        notification4 = notificationRepository.save(notification4);
+
+        User t = userRepository.findById(2L).get();
+
+        notification4.setUserToNotify(t);
+        notificationRepository.save(notification4);
     }
 }
 

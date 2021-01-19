@@ -5,6 +5,7 @@ import dev.ned.models.payloads.ParentDataPayload;
 import dev.ned.models.payloads.PhonePayload;
 import dev.ned.models.payloads.RoleRequestPayload;
 import dev.ned.models.payloads.StudentDataPayload;
+import dev.ned.models.app_users.Employee;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -27,6 +28,12 @@ public class DBInit implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
+        Role adminRole = new Role("ADMIN");
+        Role ceoRole = new Role("CEO");
+        Role teacherRole = new Role("TEACHER");
+        Permission editProfilePermission = new Permission("EDIT_PROFILE");
+        Permission accessApiPermission = new Permission("ACCESS_API");
+
         User admin = new User();
         admin.setEnabled(false);
         admin.setLocked(false);
@@ -34,26 +41,29 @@ public class DBInit implements CommandLineRunner {
         admin.setPassword(passwordEncoder.encode("adm12345"));
         admin.setFirstName("admin name");
         admin.setLastName("admin name");
-        admin.addPermission(new Permission("EDIT_PROFILE"));
-        admin.addRole(new Role("ADMIN"));
-        admin.addRole(new Role("CEO"));
+        admin.setDob(new Date());
+        admin.setUcrn("admin ucrn");
+        admin.addRole(adminRole);
+        admin.addRole(ceoRole);
+        admin.addPermission(editProfilePermission);
 
-
-        User teacher = new User();
+        Employee teacher = new Employee();
         teacher.setEnabled(true);
         teacher.setLocked(false);
-        teacher.addPermission(new Permission("ACCESS_API"));
         teacher.setEmail("teacher@gmail.com");
         teacher.setPassword(passwordEncoder.encode("tea12345"));
         teacher.setFirstName("teacher name");
         teacher.setLastName("last name");
-        teacher.addRole(new Role("TEACHER"));
+        teacher.setDob(new Date());
+        teacher.setUcrn("teacher ucrn");
+        teacher.addRole(teacherRole);
+        teacher.addPermission(accessApiPermission);
+
         NotEnabledReason reason = new NotEnabledReason(UserNotEnabledReasons.MISSING_ROLE, new Date(), teacher, true);
         teacher.setNotEnabledReasons(new ArrayList<>());
         teacher.getNotEnabledReasons().add(reason);
-        List<User> users = Arrays.asList(admin, teacher);
 
-        this.userRepository.saveAll(users);
+        this.userRepository.saveAll(Arrays.asList(admin, teacher));
 
         // NOTIFICATIONS
         RoleRequestPayload payload= new RoleRequestPayload();

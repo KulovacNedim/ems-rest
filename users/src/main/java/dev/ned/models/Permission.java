@@ -3,6 +3,7 @@ package dev.ned.models;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -17,17 +18,26 @@ public class Permission {
     @Column(nullable = false)
     private String permissionName;
 
-    @ManyToMany(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.DETACH, CascadeType.REFRESH})
+    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.DETACH, CascadeType.REFRESH})
     @JoinTable(name = "user_permissions",
             joinColumns = @JoinColumn(name = "permission_id"),
             inverseJoinColumns = @JoinColumn(name = "user_id"))
-    private List<User> users;
+    private List<User> users = new ArrayList<>();
 
     public Permission() {
     }
 
     public Permission(String permissionName) {
         this.permissionName = permissionName;
+    }
+
+    // adding User to permissions
+    public void addUser(User user) {
+        if (users == null) {
+            users = new ArrayList<>();
+        }
+        user.getPermissions().add(this);
+        users.add(user);
     }
 
     public Long getPermission_id() {
@@ -51,6 +61,7 @@ public class Permission {
     }
 
     public void setUsers(List<User> users) {
+        users.forEach(user -> user.getPermissions().add(this));
         this.users = users;
     }
 

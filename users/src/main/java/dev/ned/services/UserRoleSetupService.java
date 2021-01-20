@@ -64,12 +64,19 @@ public class UserRoleSetupService {
         return notification;
     }
 
+    /**
+     *
+     * @param email email address of the user for which notifications are returned
+     * @return Set of notifications for certain user e.g. email
+     * @throws Exception
+     */
     public Set<Notification> getNotifications(String email) throws Exception {
         Optional<User> authUser = userRepository.findByEmail(email);
         if(authUser.isEmpty()) throw new Exception("Wrong credentials.");
+        authUser.get().setPassword(null);
 
-        List<Notification> notificationForMe = authUser.get().getNotificationDTO();
-        List<Notification> notificationsForMyRoles = notificationRepository.findNotificationsForRoles(authUser.get().getRoles());
+        List<Notification> notificationForMe = notificationRepository.findUserBasedNotifications(authUser.get());
+        List<Notification> notificationsForMyRoles = notificationRepository.findRoleBasedNotifications(authUser.get().getRoles());
 
         Set<Notification> setOfNotifications = new HashSet<>();
         setOfNotifications.addAll(notificationForMe);

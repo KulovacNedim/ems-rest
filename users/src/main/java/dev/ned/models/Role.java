@@ -5,11 +5,11 @@ import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
 @Entity
-//@JsonIgnoreProperties(value = "users", allowSetters = true)
 @JsonIgnoreProperties({"users", "notificationDTOs"})
 public class Role {
 
@@ -20,11 +20,11 @@ public class Role {
     @Column(nullable = false)
     private String roleName;
 
-    @ManyToMany(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.DETACH, CascadeType.REFRESH})
+    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.DETACH, CascadeType.REFRESH})
     @JoinTable(name = "user_roles",
             joinColumns = @JoinColumn(name = "role_id"),
             inverseJoinColumns = @JoinColumn(name = "user_id"))
-    private List<User> users;
+    private List<User> users = new ArrayList<>();
 
     @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.DETACH, CascadeType.REFRESH})
     @LazyCollection(LazyCollectionOption.FALSE)
@@ -34,6 +34,15 @@ public class Role {
     private List<Notification> notifications;
 
     public Role() {
+    }
+
+    // adding User to roles
+    public void addUser(User user) {
+        if (users == null) {
+            users = new ArrayList<>();
+        }
+        user.getRoles().add(this);
+        users.add(user);
     }
 
     public Role(String roleName) {
@@ -61,14 +70,15 @@ public class Role {
     }
 
     public void setUsers(List<User> users) {
+        users.forEach(user -> user.getRoles().add(this));
         this.users = users;
     }
 
-    public List<Notification> getNotificationDTOs() {
+    public List<Notification> getNotifications() {
         return notifications;
     }
 
-    public void setNotificationDTOs(List<Notification> notifications) {
+    public void setNotifications(List<Notification> notifications) {
         this.notifications = notifications;
     }
 

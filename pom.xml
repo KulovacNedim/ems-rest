@@ -10,6 +10,7 @@
         <module>mailer</module>
         <module>exceptions</module>
         <module>utils</module>
+        <module>config</module>
     </modules>
     <parent>
         <groupId>org.springframework.boot</groupId>
@@ -141,6 +142,7 @@
         </dependency>
     </dependencies>
 
+
     <build>
         <resources>
             <resource>
@@ -151,5 +153,30 @@
                 </includes>
             </resource>
         </resources>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>3.2.0</version>
+                <configuration>
+                    <!-- Default configuration for all reports -->
+                    <noqualifier>all</noqualifier>
+                    <destDir>javadoc</destDir>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>aggregate</id>
+                        <goals>
+                            <goal>aggregate</goal>
+                        </goals>
+                        <configuration>
+                            <!-- Specific configuration for the aggregate report -->
+                            <reportOutputDirectory>${user.dir}/documents</reportOutputDirectory>
+                            <destDir>javadoc</destDir>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
     </build>
 </project>

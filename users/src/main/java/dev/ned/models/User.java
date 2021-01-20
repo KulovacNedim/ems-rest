@@ -59,7 +59,7 @@ public class User {
     @OneToOne @JoinColumn(name = "address_id")
     private Address address;
 
-    @OneToMany(mappedBy = "user", cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.DETACH, CascadeType.REFRESH})
+    @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.DETACH, CascadeType.REFRESH})
     private List<Phone> phones;
 
     public User() {
@@ -88,7 +88,6 @@ public class User {
         if (phones == null) {
             phones = new ArrayList<>();
         }
-        phone.setUser(this);
         phones.add(phone);
     }
 

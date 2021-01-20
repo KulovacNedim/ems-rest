@@ -1,14 +1,11 @@
 package dev.ned.repositories;
 
 import dev.ned.models.*;
-import dev.ned.models.app_users.Parent;
-import dev.ned.models.app_users.ParentAdditionalData;
-import dev.ned.models.app_users.Student;
+import dev.ned.models.app_users.*;
 import dev.ned.models.payloads.ParentDataPayload;
 import dev.ned.models.payloads.PhonePayload;
 import dev.ned.models.payloads.RoleRequestPayload;
 import dev.ned.models.payloads.StudentDataPayload;
-import dev.ned.models.app_users.Employee;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -21,12 +18,14 @@ public class DBInit implements CommandLineRunner {
     private PasswordEncoder passwordEncoder;
     private RoleRepository roleRepository;
     private NotificationRepository notificationRepository;
+    private PersonAuthorizedToTakeStudentsInAndOutRepository authorizedPersonsRepository;
 
-    public DBInit(UserRepository userRepository, PasswordEncoder passwordEncoder, RoleRepository roleRepository, NotificationRepository notificationRepository) {
+    public DBInit(UserRepository userRepository, PasswordEncoder passwordEncoder, RoleRepository roleRepository, NotificationRepository notificationRepository, PersonAuthorizedToTakeStudentsInAndOutRepository authorizedPersonsRepository) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.roleRepository = roleRepository;
         this.notificationRepository = notificationRepository;
+        this.authorizedPersonsRepository = authorizedPersonsRepository;
     }
 
     @Override
@@ -80,7 +79,7 @@ public class DBInit implements CommandLineRunner {
         NotEnabledReason reasonParent = new NotEnabledReason(UserNotEnabledReasons.MISSING_ROLE, new Date(), parent, true);
         parent.setNotEnabledReasons(new ArrayList<>());
         parent.getNotEnabledReasons().add(reasonParent);
-        parent.setParentAdditionalData(new ParentAdditionalData());
+        parent.getParentAdditionalData().setEmployer("IloveIT");
 
         Student student = new Student();
         student.setEnabled(true);
@@ -118,6 +117,23 @@ public class DBInit implements CommandLineRunner {
 
         parent.setStudents(Arrays.asList(student, student2));
         this.userRepository.saveAll(Arrays.asList(parent, student, student2));
+
+        Phone apPhone = new Phone();
+        apPhone.setPhoneNumber("061");
+        apPhone.setPhoneOwner("owner name");
+        apPhone.setPhoneType(PhoneType.PERSONAL);
+
+        PersonAuthorizedToTakeStudentsInAndOut authorizedPerson = new PersonAuthorizedToTakeStudentsInAndOut();
+        authorizedPerson.setFirstName("AP fname");
+        authorizedPerson.setLastName("AP lname");
+        authorizedPerson.setFamilyRelationship("grandfather");
+        authorizedPerson.setImageUrl("url");
+        authorizedPerson.setPhones(Arrays.asList(apPhone));
+        authorizedPersonsRepository.save(authorizedPerson);
+        authorizedPerson.addStudent(student);
+        authorizedPerson.addStudent(student2);
+        authorizedPersonsRepository.save(authorizedPerson);
+
 
         // NOTIFICATIONS
         RoleRequestPayload payload= new RoleRequestPayload();

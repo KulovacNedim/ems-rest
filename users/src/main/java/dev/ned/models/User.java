@@ -1,6 +1,7 @@
 package dev.ned.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import dev.ned.jpa_audit.Auditable;
 import dev.ned.models.app_users.Address;
 import dev.ned.models.app_users.Phone;
 
@@ -13,7 +14,7 @@ import java.util.Objects;
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED)
 @JsonIgnoreProperties(value = "notificationDTO", allowSetters = true)
-public class User {
+public class User extends Auditable<String> {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 

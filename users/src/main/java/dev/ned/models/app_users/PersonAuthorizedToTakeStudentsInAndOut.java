@@ -1,11 +1,14 @@
 package dev.ned.models.app_users;
 
+import dev.ned.jpa_audit.Auditable;
+
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Entity
-public class PersonAuthorizedToTakeStudentsInAndOut {
+public class PersonAuthorizedToTakeStudentsInAndOut extends Auditable<String> {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -16,6 +19,9 @@ public class PersonAuthorizedToTakeStudentsInAndOut {
     private String familyRelationship;
 
     @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.DETACH, CascadeType.REFRESH})
+    @JoinTable(name = "authorized_person_phones",
+            joinColumns = @JoinColumn(name = "authorized_person_id"),
+            inverseJoinColumns = @JoinColumn(name = "phone_id"))
     private List<Phone> phones = new ArrayList<>();
 
     @ManyToMany(mappedBy = "personsAuthorizedToTakeStudentsInAndOut", fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.DETACH, CascadeType.REFRESH})
@@ -86,7 +92,6 @@ public class PersonAuthorizedToTakeStudentsInAndOut {
     }
 
     public void setPhones(List<Phone> phones) {
-//        phones.forEach(phone -> phone.setPersonAuthorizedToTakeStudentsInAndOut(this));
         this.phones = phones;
     }
 
@@ -99,5 +104,22 @@ public class PersonAuthorizedToTakeStudentsInAndOut {
         this.students = students;
     }
 
-    // equals and hashcode
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        PersonAuthorizedToTakeStudentsInAndOut that = (PersonAuthorizedToTakeStudentsInAndOut) o;
+        return Objects.equals(id, that.id) &&
+                Objects.equals(firstName, that.firstName) &&
+                Objects.equals(lastName, that.lastName) &&
+                Objects.equals(imageUrl, that.imageUrl) &&
+                Objects.equals(familyRelationship, that.familyRelationship) &&
+                Objects.equals(phones, that.phones) &&
+                Objects.equals(students, that.students);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, firstName, lastName, imageUrl, familyRelationship, phones, students);
+    }
 }

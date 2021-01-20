@@ -128,8 +128,16 @@ public class DBInit implements CommandLineRunner {
         authorizedPerson.setLastName("AP lname");
         authorizedPerson.setFamilyRelationship("grandfather");
         authorizedPerson.setImageUrl("url");
-        authorizedPerson.setPhones(Arrays.asList(apPhone));
-        authorizedPersonsRepository.save(authorizedPerson);
+//        authorizedPerson.setPhones(Arrays.asList(apPhone));
+
+        PersonAuthorizedToTakeStudentsInAndOut authorizedPerson2 = new PersonAuthorizedToTakeStudentsInAndOut();
+        authorizedPerson2.setFirstName("AP fname");
+        authorizedPerson2.setLastName("AP lname");
+        authorizedPerson2.setFamilyRelationship("grandfather");
+        authorizedPerson2.setImageUrl("url");
+        authorizedPerson2.setPhones(Arrays.asList(apPhone));
+
+        authorizedPersonsRepository.saveAll(Arrays.asList(authorizedPerson, authorizedPerson2));
         authorizedPerson.addStudent(student);
         authorizedPerson.addStudent(student2);
         authorizedPersonsRepository.save(authorizedPerson);

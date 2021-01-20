@@ -18,7 +18,7 @@ public class Permission {
     @Column(nullable = false)
     private String permissionName;
 
-    @ManyToMany(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.DETACH, CascadeType.REFRESH})
+    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.DETACH, CascadeType.REFRESH})
     @JoinTable(name = "user_permissions",
             joinColumns = @JoinColumn(name = "permission_id"),
             inverseJoinColumns = @JoinColumn(name = "user_id"))

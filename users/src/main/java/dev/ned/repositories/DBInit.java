@@ -1,6 +1,9 @@
 package dev.ned.repositories;
 
 import dev.ned.models.*;
+import dev.ned.models.app_users.Parent;
+import dev.ned.models.app_users.ParentAdditionalData;
+import dev.ned.models.app_users.Student;
 import dev.ned.models.payloads.ParentDataPayload;
 import dev.ned.models.payloads.PhonePayload;
 import dev.ned.models.payloads.RoleRequestPayload;
@@ -64,6 +67,57 @@ public class DBInit implements CommandLineRunner {
         teacher.getNotEnabledReasons().add(reason);
 
         this.userRepository.saveAll(Arrays.asList(admin, teacher));
+
+        Parent parent = new Parent();
+        parent.setEnabled(true);
+        parent.setLocked(false);
+        parent.setEmail("parent@gmail.com");
+        parent.setPassword(passwordEncoder.encode("tea12345"));
+        parent.setFirstName("parent name");
+        parent.setLastName("last name");
+        parent.setDob(new Date());
+        parent.setUcrn("parent ucrn");
+        NotEnabledReason reasonParent = new NotEnabledReason(UserNotEnabledReasons.MISSING_ROLE, new Date(), parent, true);
+        parent.setNotEnabledReasons(new ArrayList<>());
+        parent.getNotEnabledReasons().add(reasonParent);
+        parent.setParentAdditionalData(new ParentAdditionalData());
+
+        Student student = new Student();
+        student.setEnabled(true);
+        student.setLocked(false);
+        student.setEmail("student@gmail.com");
+        student.setPassword(passwordEncoder.encode("tea12345"));
+        student.setFirstName("student name");
+        student.setLastName("last name");
+        student.setDob(new Date());
+        student.setUcrn("student ucrn");
+        NotEnabledReason reasonStudent = new NotEnabledReason(UserNotEnabledReasons.MISSING_ROLE, new Date(), student, true);
+        student.setNotEnabledReasons(new ArrayList<>());
+        student.getNotEnabledReasons().add(reasonStudent);
+
+        Student student2 = new Student();
+        student2.setEnabled(true);
+        student2.setLocked(false);
+        student2.setEmail("student2@gmail.com");
+        student2.setPassword(passwordEncoder.encode("tea12345"));
+        student2.setFirstName("student2 name");
+        student2.setLastName("last name");
+        student2.setDob(new Date());
+        student2.setUcrn("student2 ucrn");
+        NotEnabledReason reasonStudent2 = new NotEnabledReason(UserNotEnabledReasons.MISSING_ROLE, new Date(), student2, true);
+        student2.setNotEnabledReasons(new ArrayList<>());
+        student2.getNotEnabledReasons().add(reasonStudent2);
+
+        this.userRepository.saveAll(Arrays.asList(parent, student, student2));
+        parent.addPermission(accessApiPermission);
+        parent.addRole(teacherRole);
+        student.addPermission(accessApiPermission);
+        student.addRole(teacherRole);
+        student2.addPermission(accessApiPermission);
+        student2.addRole(teacherRole);
+
+        parent.setStudents(Arrays.asList(student, student2));
+        this.userRepository.saveAll(Arrays.asList(parent, student, student2));
 
         // NOTIFICATIONS
         RoleRequestPayload payload= new RoleRequestPayload();

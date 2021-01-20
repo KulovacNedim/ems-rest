@@ -3,8 +3,6 @@ package dev.ned.models;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import dev.ned.models.app_users.Address;
 import dev.ned.models.app_users.Phone;
-import org.hibernate.annotations.LazyCollection;
-import org.hibernate.annotations.LazyCollectionOption;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -40,11 +38,10 @@ public class User {
     @OneToMany(mappedBy = "user", cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.DETACH, CascadeType.REFRESH})
     List<NotEnabledReason> notEnabledReasons;
 
-    @ManyToMany(mappedBy = "users", fetch = FetchType.EAGER, cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.DETACH, CascadeType.REFRESH})
+    @ManyToMany(mappedBy = "users", cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.DETACH, CascadeType.REFRESH})
     private List<Role> roles = new ArrayList<>();
 
     @ManyToMany(mappedBy = "users", cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.DETACH, CascadeType.REFRESH})
-    @LazyCollection(LazyCollectionOption.FALSE)
     private List<Permission> permissions = new ArrayList<>();
 
     @OneToMany(mappedBy = "userToNotify", cascade = {

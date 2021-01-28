@@ -1,5 +1,5 @@
 # ems-rest
-Spring REST application for School/Kindergarten Management Software
+Spring REST application for [School/Kindergarten Management Software](https://github.com/KulovacNedim/ems-client)
 
 # Technologies used
 
